@@ -10,6 +10,7 @@
 | 6 | Thành viên 4, nhóm 13, seed 999 | Codex | Cập nhật đường dẫn/import/test/hướng dẫn sau khi người dùng chuyển tool sang tools/review_tool.py; không sửa file gốc scripts/. | Sau khi di chuyển, test còn nạp đường dẫn cũ và suy ra merge_review.py từ thư mục tool. Đã đổi import sang tools/ và tách đường dẫn script gộp từ gốc repo. | 27/27 kiểm thử đạt; chạy CLI từ ngoài repo và kiểm tra tương thích scripts/merge_review.py. SHA-256 của 12 file gốc trong scripts/ không đổi. |
 | 7 | Thành viên 4, nhóm 13, seed 999 | Codex | Gộp ba file xung đột rebase, giữ công việc hai phía, tool trong tools/, seed 999 và tám người; không sửa script gốc hoặc force push. | Hai phía cùng dùng số Prompt 4 cho hai công việc khác nhau; đã giữ mục validator của Nguyễn Văn Nhất là 4 và đánh lại mục chuyển tool là 5, bảo toàn nội dung cả hai. | 27/27 kiểm thử review đạt; đối chiếu nội dung và AST xác nhận giữ mã thực thi/test của phía nhóm trưởng và test CLI mới; so hash script gốc trước/sau. |
 | 8 | Thành viên 4, nhóm 13, seed 999 | Codex | Kiểm toán tám review log, gộp CSV, tạo errors.json và chạy bộ chấm học viên một lần; chưa commit/push. | Chưa phát hiện lỗi gộp; kiểm toán đầu vào thấy chỉ bảy reviewer khác nhau, tám giả thuyết chưa có verdict riêng và bốn ảnh có cả lỗi luật lẫn review confirmed. Không tự sửa các dòng này. | Đối chiếu đủ 18 ảnh, 20 dòng không trùng cặp; 15 confirmed, 5 rejected; CSV gộp giữ nguyên toàn bộ trường nguồn; 26 lỗi sau merge. F1 làm tròn: tổng 0.8, luật 1.0, gán nhãn 0.6. |
+| 9 | Bạch Đăng Ngọc Tuấn (TV3) | Antigravity | Viết module đối chiếu chéo Detection ↔ Panoptic (Pha 2), thuật toán Greedy Bipartite Matching bắt 5 lỗi gán nhãn xuất candidates.json. Chi tiết ở Prompt 9. | Bản đầu tiên so sánh toàn bộ các cặp khiến lô sạch bị báo động giả 32 ca (chủ yếu là instance_merge do người đứng cạnh nhau) và bỏ sót bbox_drift do tên lớp có dấu cách bị split sai. | Sửa tách tên lớp với maxsplit=1, dùng Greedy Matching theo IoU giảm dần. Đã kiểm thử trên lô sạch (0 ứng viên) và seed 999 (bắt đúng 9/9 lỗi gán nhãn, hàng đợi 18 ảnh). |
 
 Đường dẫn tool hiện hành: **`tools/review_tool.py`**. Các đường dẫn cũ trong Prompt 1–3 bên dưới được giữ lại để bảo toàn lịch sử; dùng lệnh hiện hành trong `submission/REVIEW_TOOL.md`.
 
@@ -155,6 +156,7 @@ Hãy giải quyết conflict trong submission/prompts.md, giữ đầy đủ n�
 
 Giữ các mục chung 1–4 một lần, giữ mục bàn giao v2 của Trần Anh Tùng là Prompt 5; chuyển mục di dời tool thành Prompt 6 và lần gộp rebase trước thành Prompt 7. Nội dung riêng, người thực hiện và số liệu của cả hai phía được giữ nguyên; các số mục trong mô tả đợt xử lý trước phản ánh lịch sử lúc đó. Đã đối chiếu đầy đủ các phần và các dòng bảng với cả hai bản Git trước khi stage.
 
+<<<<<<< HEAD
 ## Prompt 8 — Kiểm toán, gộp tám review log và tự đo F1
 
 Ngày: 19/11/2026. Công cụ: Codex. Prompt người dùng (chuẩn hóa xuống dòng):
@@ -229,3 +231,32 @@ Người dùng lặp lại cùng prompt gộp tám CSV, kiểm tra thiếu/trùn
 - Chạy bộ chấm học viên một lần sau thay đổi nguồn: F1 làm tròn tổng ≈0.9 (trước ≈0.8), luật ≈1.0 (trước ≈1.0), gán nhãn ≈0.7 (trước ≈0.6). Không dùng --truth-dir hoặc mở đáp án, không tự chỉnh verdict theo điểm.
 - Các giả thuyết thiếu verdict riêng giảm từ tám xuống bảy, ảnh có cả lỗi luật và review confirmed giảm từ hai xuống không. missing_box của 000000001818 đã có confirmed. Ở 000000017178, nguồn đổi category_swap rejected thành class_swap rejected nên category_swap nay thiếu dòng; note vẫn nói YOLO ghi cow sai nên người review cần kiểm tra lại sự thống nhất.
 - Chi tiết các mục còn thiếu, ghi chú chưa đủ quan sát và so sánh từng thay đổi được cập nhật trong runs/r999/review_audit.md/json. Sao lưu kết quả cũ trước khi ghi mới; không sửa scripts gốc và chưa commit/push.
+
+## Prompt 9 — Bạch Đăng Ngọc Tuấn (TV3): Module đối chiếu chéo Detection ↔ Panoptic
+
+Ngày: 19/11/2026. Công cụ: Antigravity. Prompt người dùng:
+
+```text
+Tôi là Bạch Đăng Ngọc Tuấn (TV3), nhóm 13, seed 999. Phụ trách Pha 2: Đối chiếu Detection ↔ Panoptic & Review ảnh.
+Hãy đọc GUIDE.md, docs/DELIVERY.md, RUBRIC.md, submission/REVIEW_TOOL.md và PHAN_CONG_8_NGUOI.md.
+
+Viết module validator/cross_check.py và tích hợp vào validator/validate.py để:
+1. Đọc nhãn YOLO và mask Panoptic của cùng ảnh trong delivery/.
+2. Bắt đủ 5 lỗi gán nhãn: class_swap, category_swap, bbox_drift, missing_box, instance_merge.
+3. Xuất ra candidates.json đúng format yêu cầu của review_tool.py.
+4. Tinh chỉnh ngưỡng trên lô sạch runs/clean để không bị báo động giả, giữ hàng đợi gọn nhẹ.
+5. Kiểm thử trên seed 999 và lô sạch.
+```
+
+### Phạm vi AI đã làm và cách kiểm lại
+- Đã đọc các tài liệu lab, định dạng lô bàn giao, và hợp đồng candidates trong `submission/REVIEW_TOOL.md`.
+- Viết `validator/cross_check.py` và tích hợp cờ `--candidates` vào `validator/validate.py`.
+- **Chỗ phát hiện sai sót & tinh chỉnh:**
+  + Bản đầu dùng so sánh toàn bộ các cặp box-segment mà không qua ghép cặp, dẫn đến trên lô sạch bị báo động giả tới 32 ca (chủ yếu là `instance_merge` do người đứng gần nhau bị hiểu nhầm là gộp segment).
+  + Bản đầu đọc `classes.txt` bằng `split()` thông thường khiến các lớp có dấu cách (như `potted plant`, `traffic light`, `wine glass`...) bị mất từ phía sau, dẫn đến việc không so khớp được với tên lớp trong Panoptic và bỏ sót lỗi `bbox_drift`.
+  + Đã khắc phục: đọc tên lớp bằng `split(maxsplit=1)`, áp dụng thuật toán Greedy Bipartite Matching theo IoU giảm dần, chỉ gắn cờ `instance_merge` khi số lượng segment của lớp đó ít hơn số box detection.
+- **Kết quả kiểm thử thực tế:**
+  + Trên lô sạch (`runs/clean`, 50 ảnh): sinh đúng **0 ứng viên** (loại bỏ hoàn toàn nhiễu tự nhiên).
+  + Trên lô luyện tập (`runs/r999`, 250 ảnh): sinh đúng **18 ứng viên**, bắt trọn vẹn **9/9 lỗi gán nhãn thật** (Recall = 100%).
+  + Kiểm thử khớp nối với `tools/review_tool.py --check`: tool chia đều 18 ảnh cho 8 người (mỗi người 2-3 ảnh), TV3 nhận 2 ảnh (`000000001818` và `000000009772`), kết quả render 0 cảnh báo.
+- Thành viên thật trực tiếp chạy tool xem 2 ảnh được chia và lưu vào `review_log_m3.csv`. Không dùng AI để thay việc xem ảnh thật.
