@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Human-only Day 10 review. Python 3.10+, Pillow, Tkinter (Windows Python).
 
-Training: py -X utf8 scripts/review_tool.py --member 4 --reviewer "TV4"
+Defaults: runs/r999/delivery/, 8 members; reviewer slot 4.
+Training: py -X utf8 scripts/review_tool.py --members 8 --member 4 --reviewer "TV4"
 Hidden:   py -X utf8 scripts/review_tool.py --delivery delivery \
           --candidates submission/de_an/candidates.json --out submission/de_an/review_m4.csv
-See submission/REVIEW_TOOL.md for the candidate contract and six-person workflow.
+See submission/REVIEW_TOOL.md for the candidate contract and configurable team workflow.
 """
 from __future__ import annotations
 
@@ -23,6 +24,7 @@ except ImportError:
     raise SystemExit("Thieu Pillow. Chay: py -m pip install Pillow")
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_MEMBERS = 8
 TYPES = ("class_swap", "category_swap", "bbox_drift", "missing_box", "instance_merge")
 FIELDS = ("image", "type", "verdict", "note")
 FORBIDDEN = {"_private", "data_source"}
@@ -89,11 +91,13 @@ def load_candidates(path: Path) -> dict[str, list[str]]:
     return {key: sorted(result[key]) for key in sorted(result)}
 
 
-def partition(candidates: dict[str, list[str]], member: int) -> list[str]:
+def partition(candidates: dict[str, list[str]], member: int, members: int = DEFAULT_MEMBERS) -> list[str]:
     """Round-robin sorted unique images; all hypotheses for one image stay together."""
-    if member not in range(1, 7):
-        raise ValueError("member phai tu 1 den 6")
-    return sorted(candidates)[member - 1::6]
+    if members < 1:
+        raise ValueError("members phai >= 1")
+    if not 1 <= member <= members:
+        raise ValueError(f"member phai tu 1 den {members}")
+    return sorted(candidates)[member - 1::members]
 
 
 def read_log(path: Path) -> dict[tuple[str, str], dict[str, str]]:
@@ -282,15 +286,16 @@ class Dataset:
 
 
 class ReviewApp:
-    def __init__(self, root, dataset, candidates, member, reviewer, out):
+    def __init__(self, root, dataset, candidates, member, reviewer, out, members=DEFAULT_MEMBERS):
         import tkinter as tk
         from tkinter import ttk
         self.tk, self.ttk, self.root = tk, ttk, root
         self.dataset, self.candidates, self.out = dataset, candidates, out
-        self.queue = partition(candidates, member)
+        self.member, self.members = member, members
+        self.queue = partition(candidates, member, members)
         self.rows = read_log(out)
         self.index, self.zoom, self.photos, self.dirty = 0, 1.0, [], False
-        root.title(f"Day 10 - Review thu cong - Phan {member}/6")
+        root.title(f"Day 10 - Review thu cong - Phan {member}/{members}")
         root.geometry("1320x900")
         root.minsize(900, 650)
         self.status = tk.StringVar()
@@ -354,7 +359,7 @@ class ReviewApp:
         if self.queue:
             self.load()
         else:
-            self.status.set(f"Phan {member}/6: 0 anh. Khong co ket luan nao duoc tao.")
+            self.status.set(f"Phan {member}/{members}: 0 anh. Khong co ket luan nao duoc tao.")
             self.images = ()
         self.dirty = False
 
@@ -414,7 +419,7 @@ class ReviewApp:
                             "\n".join(["CANH BAO: " + w for w in warnings] + legend))
         self.details.configure(state="disabled")
         done = sum(any((im, kind) in self.rows for kind in TYPES) for im in self.queue)
-        self.status.set(f"{self.index + 1}/{len(self.queue)} | {key} | "
+        self.status.set(f"Phan {self.member}/{self.members} | {self.index + 1}/{len(self.queue)} | {key} | "
                         f"{done} anh co dong da luu | Goi y: {', '.join(kinds)}")
         self.fit()
 
@@ -493,16 +498,23 @@ class ReviewApp:
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Review thu cong YOLO/Panoptic, chia 6 phan; khong tu ket luan.")
-    parser.add_argument("--delivery", type=Path, default=ROOT / "runs/r13007/delivery")
+    parser = argparse.ArgumentParser(description="Review thu cong YOLO/Panoptic, chia theo so thanh vien; khong tu ket luan.")
+    parser.add_argument("--delivery", type=Path, default=ROOT / "runs/r999/delivery",
+                        help="Thu muc delivery, mac dinh %(default)s")
     parser.add_argument("--candidates", type=Path, help="Mac dinh: thu muc cha delivery/candidates.json")
-    parser.add_argument("--member", type=int, choices=range(1, 7), default=4, help="So phan 1..6, mac dinh 4")
+    parser.add_argument("--members", type=int, default=DEFAULT_MEMBERS,
+                        help="Tong so thanh vien/phan >=1, mac dinh %(default)s")
+    parser.add_argument("--member", type=int, default=4, help="So phan 1..--members, mac dinh 4")
     parser.add_argument("--reviewer", help="Ten/ma nguoi truc tiep xem anh; mac dinh TV<member>")
     parser.add_argument("--out", type=Path, help="CSV rieng tung nguoi; --merge dung lam CSV tong")
     parser.add_argument("--merge", nargs="+", type=Path, metavar="CSV", help="Gop log; dung neu xung dot, khong tu chon verdict")
     parser.add_argument("--check", action="store_true", help="Doc/render phan duoc chia, bao canh bao, khong mo GUI/ghi verdict")
     parser.add_argument("--preview", type=Path, metavar="PNG", help="Xuat 3 khung anh dau tien trong phan; khong ghi verdict")
     args = parser.parse_args(argv)
+    if args.members < 1:
+        parser.error("--members phai >= 1")
+    if not args.merge and not 1 <= args.member <= args.members:
+        parser.error(f"--member phai tu 1 den {args.members} (theo --members)")
     try:
         if args.merge:
             if args.out is None:
@@ -522,8 +534,9 @@ def main(argv=None):
         out = output_path(args.out or path.parent / f"review_log_m{args.member}.csv", delivery)
         if out == path:
             raise ValueError("Khong ghi de candidates.json")
-        queue = partition(candidates, args.member)
-        print(f"{len(candidates)} anh / 6 phan: " + ", ".join(str(len(partition(candidates, m))) for m in range(1, 7)))
+        queue = partition(candidates, args.member, args.members)
+        print(f"{len(candidates)} anh / {args.members} phan: " + ", ".join(
+            str(len(partition(candidates, m, args.members))) for m in range(1, args.members + 1)))
         print(f"Phan {args.member}: {len(queue)} anh. CSV: {out}")
         if args.check or args.preview:
             preview = output_path(args.preview, delivery, ".png") if args.preview else None
@@ -548,7 +561,8 @@ def main(argv=None):
             return 0
         import tkinter as tk
         root = tk.Tk()
-        ReviewApp(root, dataset, candidates, args.member, args.reviewer or f"TV{args.member}", out)
+        ReviewApp(root, dataset, candidates, args.member, args.reviewer or f"TV{args.member}", out,
+                  members=args.members)
         root.mainloop()
         return 0
     except (OSError, ValueError, KeyError, TypeError) as exc:

@@ -2,7 +2,10 @@
 import csv
 import hashlib
 import importlib.util
+import io
 import json
+import shutil
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 import subprocess
 import sys
@@ -79,13 +82,87 @@ class ReviewToolTests(unittest.TestCase):
                 tool.load_candidates(self.candidates)
 
     def test_partition_stable_disjoint_balanced_at_image_level(self):
-        for count in (0, 1, 5, 6, 7, 29):
-            data = {f"img_{i:04}": ["class_swap", "category_swap"] for i in reversed(range(count))}
-            parts = [tool.partition(data, member) for member in range(1, 7)]
-            self.assertEqual(sum(map(len, parts)), count)
-            self.assertEqual(len(set(sum(parts, []))), count)
-            self.assertLessEqual(max(map(len, parts)) - min(map(len, parts)), 1)
-            self.assertEqual(parts, [tool.partition(dict(reversed(list(data.items()))), m) for m in range(1, 7)])
+        for members in (1, 2, 3, 6, 8, 10, 12):
+            for count in (0, 1, members - 1, members, members + 1, 29):
+                with self.subTest(members=members, count=count):
+                    data = {f"img_{i:04}": ["class_swap", "category_swap"] for i in reversed(range(count))}
+                    parts = [tool.partition(data, member, members) for member in range(1, members + 1)]
+                    self.assertEqual(sum(map(len, parts)), count)
+                    self.assertEqual(set(sum(parts, [])), set(data))
+                    self.assertEqual(len(set(sum(parts, []))), count)
+                    self.assertLessEqual(max(map(len, parts)) - min(map(len, parts)), 1)
+                    self.assertEqual(parts, [tool.partition(dict(reversed(list(data.items()))), m, members)
+                                             for m in range(1, members + 1)])
+
+    def test_partition_defaults_to_eight_and_preserves_legacy_six_when_requested(self):
+        data = {f"img_{i:04}": ["class_swap"] for i in range(1, 18)}
+        self.assertEqual(tool.partition(data, 1), ["img_0001", "img_0009", "img_0017"])
+        self.assertEqual(tool.partition(data, 8), ["img_0008", "img_0016"])
+        self.assertEqual(tool.partition(data, 1, members=6), ["img_0001", "img_0007", "img_0013"])
+
+    def test_partition_rejects_invalid_member_counts_and_indices(self):
+        for member, members in ((1, 0), (1, -1), (0, 8), (9, 8), (-1, 3)):
+            with self.subTest(member=member, members=members), self.assertRaises(ValueError):
+                tool.partition({}, member, members)
+
+    def test_cli_rejects_invalid_members_before_reading_dataset(self):
+        for args in (("--members", "0"), ("--members", "-2"), ("--members", "2.5"),
+                     ("--member", "0"), ("--member", "9"), ("--members", "3", "--member", "4")):
+            with self.subTest(args=args), redirect_stderr(io.StringIO()), \
+                    patch.object(tool, "Dataset") as dataset, self.assertRaises(SystemExit) as error:
+                try:
+                    tool.main(list(args))
+                finally:
+                    dataset.assert_not_called()
+            self.assertEqual(error.exception.code, 2)
+
+    def test_cli_default_eight_and_custom_member_counts(self):
+        for members in (1, 3, 6, 8, 10):
+            output = io.StringIO()
+            args = ["--delivery", str(self.delivery), "--member", str(members), "--check"]
+            if members != 8:
+                args += ["--members", str(members)]
+            with self.subTest(members=members), redirect_stdout(output):
+                self.assertEqual(tool.main(args), 0)
+            self.assertIn(f"1 anh / {members} phan:", output.getvalue())
+            self.assertIn(str(self.base / f"review_log_m{members}.csv"), output.getvalue())
+        self.assertFalse(self.out.exists())
+
+    def test_cli_defaults_to_seed_999_eight_members_and_member_four(self):
+        repo = self.base / "repo"
+        run = repo / "runs/r999"
+        delivery = run / "delivery"
+        shutil.copytree(self.delivery, delivery)
+        manifest = json.loads((delivery / "manifest.json").read_text(encoding="utf-8"))
+        item = manifest["items"][self.key]
+        manifest["items"] = {f"img_{i:04}": dict(item) for i in range(1, 10)}
+        self.put_json(delivery / "manifest.json", manifest)
+        self.put_json(run / "candidates.json", {"candidates": [
+            {"image": key, "type": "class_swap"} for key in manifest["items"]]})
+        before = {p.relative_to(delivery): p.read_bytes() for p in delivery.rglob("*") if p.is_file()}
+        output = io.StringIO()
+        with patch.object(tool, "ROOT", repo), redirect_stdout(output), \
+                patch.object(tool, "load_candidates", wraps=tool.load_candidates) as load_candidates:
+            self.assertEqual(tool.main(["--check"]), 0)
+            load_candidates.assert_called_once_with(run / "candidates.json")
+        result = output.getvalue()
+        self.assertIn("9 anh / 8 phan: 2, 1, 1, 1, 1, 1, 1, 1", result)
+        self.assertIn("Phan 4: 1 anh.", result)
+        self.assertIn(str(run / "review_log_m4.csv"), result)
+        self.assertIn("img_0004: 120x100", result)
+        self.assertNotIn("13007", result)
+        self.assertFalse((run / "review_log_m4.csv").exists())
+        self.assertEqual(before, {p.relative_to(delivery): p.read_bytes()
+                                  for p in delivery.rglob("*") if p.is_file()})
+
+    def test_cli_missing_default_candidates_reports_r999_without_falling_back(self):
+        errors = io.StringIO()
+        with patch.object(tool, "ROOT", self.base), redirect_stderr(errors), \
+                patch.object(tool, "Dataset") as dataset:
+            self.assertEqual(tool.main(["--check"]), 2)
+            dataset.assert_not_called()
+        self.assertIn(str(self.base / "runs/r999/candidates.json"), errors.getvalue())
+        self.assertNotIn("13007", errors.getvalue())
 
     def test_yolo_coordinates_and_class_name(self):
         original, det, _, legend, warnings = tool.Dataset(self.delivery).views(self.key)
@@ -166,16 +243,18 @@ class ReviewToolTests(unittest.TestCase):
             tool.merge_logs([first, second], self.out)
         self.assertEqual(self.out.read_bytes(), before)
 
-    def test_merge_six_separate_people(self):
-        paths = []
-        for member in range(1, 7):
-            row = tool.make_row(f"img_{member:04}", "bbox_drift", "rejected",
-                                "SYNTHETIC TEST ONLY: fixture chu nhat de kiem thu", f"TV{member}")
-            path = self.base / f"m{member}.csv"
-            tool.write_log(path, {(row["image"], row["type"]): row})
-            paths.append(path)
-        self.assertEqual(tool.merge_logs(paths, self.out), 6)
-        self.assertEqual(len(tool.read_log(self.out)), 6)
+    def test_merge_separate_people_for_eight_and_custom_team_sizes(self):
+        for members in (6, 8, 10):
+            with self.subTest(members=members):
+                paths = []
+                for member in range(1, members + 1):
+                    row = tool.make_row(f"img_{member:04}", "bbox_drift", "rejected",
+                                        "SYNTHETIC TEST ONLY: fixture chu nhat de kiem thu", f"TV{member}")
+                    path = self.base / f"m{member}.csv"
+                    tool.write_log(path, {(row["image"], row["type"]): row})
+                    paths.append(path)
+                self.assertEqual(tool.merge_logs(paths, self.out), members)
+                self.assertEqual(len(tool.read_log(self.out)), members)
 
     def test_compatible_with_existing_merge_review_script(self):
         # Only a synthetic rules file and synthetic log are supplied to the unchanged lab script.
@@ -196,7 +275,7 @@ class ReviewToolTests(unittest.TestCase):
                                     "--out", str(self.out)]), 0)
         with Image.open(preview) as image:
             self.assertEqual(image.size, (360, 125))
-        self.assertEqual(tool.main(["--delivery", str(self.delivery), "--member", "6", "--check"]), 0)
+        self.assertEqual(tool.main(["--delivery", str(self.delivery), "--member", "8", "--check"]), 0)
         self.assertEqual(before, self.digest())
         self.assertFalse(self.out.exists())
 
@@ -242,13 +321,15 @@ class ReviewToolTests(unittest.TestCase):
         root.withdraw()
         try:
             dataset = tool.Dataset(self.delivery)
-            candidates = {f"img_{i:04}": ["class_swap", "category_swap"] for i in range(1, 8)}
+            candidates = {f"img_{i:04}": ["class_swap", "category_swap"] for i in range(1, 10)}
             for key in candidates:
                 dataset.items[key] = dataset.items[self.key]
                 dataset.annotations[key] = dataset.annotations[self.key]
             app = tool.ReviewApp(root, dataset, candidates, 1, "TV1 test", self.out)
             root.update()
-            self.assertEqual(app.queue, ["img_0001", "img_0007"])
+            self.assertEqual(app.queue, ["img_0001", "img_0009"])
+            self.assertIn("Phan 1/8", root.title())
+            self.assertIn("Phan 1/8", app.status.get())
             app.move(1)
             root.update()
             self.assertEqual(app.index, 1)
@@ -266,12 +347,34 @@ class ReviewToolTests(unittest.TestCase):
         root.withdraw()
         try:
             app = tool.ReviewApp(root, tool.Dataset(self.delivery), tool.load_candidates(self.candidates),
-                                 6, "Lead test", self.out)
+                                 8, "Lead test", self.out)
             root.update()
+            self.assertIn("Phan 8/8", root.title())
+            self.assertIn("Phan 8/8", app.status.get())
             self.assertFalse(self.out.exists())
             self.assertTrue(app.save())
             self.assertEqual(self.out.read_text().strip(), "image,type,verdict,note")
             self.assertEqual(tool.read_log(self.out), {})
+        finally:
+            root.destroy()
+
+    def test_tk_custom_members_controls_queue_and_labels(self):
+        import tkinter as tk
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            dataset = tool.Dataset(self.delivery)
+            candidates = {f"img_{i:04}": ["class_swap", "category_swap"] for i in range(1, 8)}
+            for key in candidates:
+                dataset.items[key] = dataset.items[self.key]
+                dataset.annotations[key] = dataset.annotations[self.key]
+            app = tool.ReviewApp(root, dataset, candidates, 1, "TV1 test", self.out, members=3)
+            root.update()
+            self.assertEqual(app.queue, ["img_0001", "img_0004", "img_0007"])
+            self.assertIn("Phan 1/3", root.title())
+            self.assertIn("Phan 1/3", app.status.get())
+            self.assertEqual(app.verdict.get(), "")
+            self.assertFalse(self.out.exists())
         finally:
             root.destroy()
 
