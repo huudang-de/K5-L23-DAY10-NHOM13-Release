@@ -6,6 +6,7 @@
 | 2 | Thành viên 4, nhóm 13, seed 13007 | Codex | Đọc PHAN_CONG_8_NGUOI.md; đổi mặc định sang tám người, thêm --members, cập nhật hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi trong lần chạy 24 kiểm thử; đã đối chiếu để bỏ các giới hạn sáu người trong code và hướng dẫn hiện hành. | Kiểm tra mặc định tám phần, tùy chỉnh 1/2/3/6/8/10/12 phần, tính đủ/không trùng/cân bằng, biên CLI, GUI theo số thành viên và gộp CSV của 6/8/10 người. |
 | 3 | Thành viên 4, nhóm 13, seed 999 | Codex | Đổi seed mặc định từ 13007 sang 999, giữ tám người, cập nhật đường dẫn, hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi qua 26 kiểm thử; đã kiểm tra đường dẫn đầu vào/đầu ra theo seed mới và không dùng dữ liệu seed cũ khi thiếu candidates. | 26/26 kiểm thử đạt; render 250 ảnh r999, so SHA-256 của 758 file delivery trước/sau đều không đổi. |
 | 4 | Nguyễn Văn Nhất | Codex | Rà soát phân công, viết và kiểm tra validator cho 5 lỗi File & Detection trước khi commit. Chi tiết ở Prompt 4. | Lần đầu chạy `run_lab.py`, `-X utf8` chỉ áp dụng cho tiến trình cha. Tiến trình con báo lỗi mã hóa khi in tiếng Việt sau khi tạo lô. | Đã kiểm 16 ca giả lập và chạy CLI trên seed 999, seed bổ sung 11 và lô sạch 50 ảnh. Validator báo lần lượt 6, 7 và 0 phát hiện File & Detection. |
+| 5 | Trần Anh Tùng (TV5) | Claude Code | Viết script dựng lô v2 từ `errors.json` theo GUIDE Pha 4, kiểm bằng `check_handover.py`. Chi tiết ở Prompt 5. | Bản đầu ghi sẵn "đã mở kiểm" cho ảnh `wrong_hash` khi chưa ai mở ảnh; đã sửa. | Chạy thử trên seed phụ trong thư mục tạm: PASS H1–H15. |
 
 ## Prompt 1 — Thành viên 4: công cụ review
 
@@ -91,3 +92,17 @@ hãy đảm bảo kết quả của tôi đạt trước khi commit phần công
 - Chạy validator trên dữ liệu COCO thật. Seed 999 có 6 phát hiện, seed 11 có 7 phát hiện và lô sạch 50 ảnh có 0 phát hiện. Số liệu lấy từ `rules.json` của từng lô và chỉ phản ánh năm luật File & Detection. F1 của validator chung chưa được đo ở bước này.
 - Lần chạy `run_lab.py` đã tạo lô seed 999 trước khi tiến trình con gặp lỗi mã hóa. Có thể đặt `$env:PYTHONUTF8 = "1"` trong PowerShell để các tiến trình Python con kế thừa chế độ UTF-8. Lô đã tạo chạy được qua CLI validator.
 - Nguyễn Văn Nhất sẽ tự xem ảnh do TV4 phân công và ghi kết luận vào `review_log.csv` ở pha luyện tập và đề ẩn.
+
+## Prompt 5 — Trần Anh Tùng: bàn giao v2
+
+Ngày 19/11/2026, Claude Code. Yêu cầu (tóm tắt):
+
+```text
+Tôi phụ trách TV5 (lineage và bàn giao v2). Đọc GUIDE Pha 3–4, RULES, RUBRIC mục 3 và check_handover.py.
+Viết script chỉ dùng thư viện chuẩn, dựng lô v2 từ errors.json mà không sửa delivery/ hay scripts/.
+Không đọc _private/, data_source/, không chạy score_findings.py. Không tự kết luận thay người xem ảnh.
+Chạy thử trên seed phụ, không ghi lineage của seed nhóm.
+```
+
+- AI viết `tools/build_v2.py` và chạy thử trên seed 4242 với `errors.json` giả lập (chỉ để thử, không nộp).
+- Tôi tự mở xem ảnh `wrong_hash`, ghi HOLD, dựng v2 thật và chạy `check_handover.py` trên `runs/r999`.
