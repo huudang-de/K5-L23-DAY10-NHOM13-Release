@@ -11,6 +11,7 @@
 | 7 | Thành viên 4, nhóm 13, seed 999 | Codex | Gộp ba file xung đột rebase, giữ công việc hai phía, tool trong tools/, seed 999 và tám người; không sửa script gốc hoặc force push. | Hai phía cùng dùng số Prompt 4 cho hai công việc khác nhau; đã giữ mục validator của Nguyễn Văn Nhất là 4 và đánh lại mục chuyển tool là 5, bảo toàn nội dung cả hai. | 27/27 kiểm thử review đạt; đối chiếu nội dung và AST xác nhận giữ mã thực thi/test của phía nhóm trưởng và test CLI mới; so hash script gốc trước/sau. |
 | 8 | Thành viên 4, nhóm 13, seed 999 | Codex | Kiểm toán tám review log, gộp CSV, tạo errors.json và chạy bộ chấm học viên một lần; chưa commit/push. | Chưa phát hiện lỗi gộp; kiểm toán đầu vào thấy chỉ bảy reviewer khác nhau, tám giả thuyết chưa có verdict riêng và bốn ảnh có cả lỗi luật lẫn review confirmed. Không tự sửa các dòng này. | Đối chiếu đủ 18 ảnh, 20 dòng không trùng cặp; 15 confirmed, 5 rejected; CSV gộp giữ nguyên toàn bộ trường nguồn; 26 lỗi sau merge. F1 làm tròn: tổng 0.8, luật 1.0, gán nhãn 0.6. |
 | 9 | Bạch Đăng Ngọc Tuấn (TV3) | Antigravity | Viết module đối chiếu chéo Detection ↔ Panoptic (Pha 2), thuật toán Greedy Bipartite Matching bắt 5 lỗi gán nhãn xuất candidates.json. Chi tiết ở Prompt 9. | Bản đầu tiên so sánh toàn bộ các cặp khiến lô sạch bị báo động giả 32 ca (chủ yếu là instance_merge do người đứng cạnh nhau) và bỏ sót bbox_drift do tên lớp có dấu cách bị split sai. | Sửa tách tên lớp với maxsplit=1, dùng Greedy Matching theo IoU giảm dần. Đã kiểm thử trên lô sạch (0 ứng viên) và seed 999 (bắt đúng 9/9 lỗi gán nhãn, hàng đợi 18 ảnh). |
+| 10 | Nguyễn Hoàng Thành (TV7) | CodeX | Đọc incoming/ticket.md, guideline/changelog.md, metadata.json, jobs.csv trong đường dẫn runs/999/delivery, rồi ghi file trace.json vẫn trong đường dẫn đó theo mẫu templates.json. | Không phát hiện sai sót của AI | Không cần kiểm lại |
 
 Đường dẫn tool hiện hành: **`tools/review_tool.py`**. Các đường dẫn cũ trong Prompt 1–3 bên dưới được giữ lại để bảo toàn lịch sử; dùng lệnh hiện hành trong `submission/REVIEW_TOOL.md`.
 
@@ -259,3 +260,17 @@ Viết module validator/cross_check.py và tích hợp vào validator/validate.p
   + Trên lô luyện tập (`runs/r999`, 250 ảnh): sinh đúng **18 ứng viên**, bắt trọn vẹn **9/9 lỗi gán nhãn thật** (Recall = 100%).
   + Kiểm thử khớp nối với `tools/review_tool.py --check`: tool chia đều 18 ảnh cho 8 người (mỗi người 2-3 ảnh), TV3 nhận 2 ảnh (`000000001818` và `000000009772`), kết quả render 0 cảnh báo.
 - Thành viên thật trực tiếp chạy tool xem 2 ảnh được chia và lưu vào `review_log_m3.csv`. Không dùng AI để thay việc xem ảnh thật.
+
+
+## Prompt 10 — Nguyễn Hoàng Thành (TV7): Truy vết Ticket (P5) & Test đa seed
+
+Công cụ: CodeX. Prompt:
+"Đọc incoming/ticket.md, guideline/changelog.md, metadata.json, jobs.csv trong đường dẫn runs/999/delivery, rồi ghi file trace.json vẫn trong đường dẫn đó theo mẫu templates.json."
+
+### Phạm vi AI đã làm và cách kiểm lại
+- AI đã đọc đủ các tài liệu trong prompt và xuất ra nội dung file trace.json. Kiểm tra chéo lại file metadata.json: các ảnh thuộc scene_687 và scene_917 là những ảnh nào, trong tập ảnh đó có những ảnh nào phù hợp tier_a. Check lại file jobs.csv xem mã người gán và người kiểm của các ảnh tier_a và tier_b đã chính xác chưa.
+
+- **Chỗ phát hiện sai sót & tinh chỉnh:**
+  + Không phát hiện sai sót gì, không thực hiện tinh chỉnh
+
+- Thành viên thật trực tiếp chạy tool xem 2 ảnh được chia và lưu vào `review_log_m7.csv`. Không dùng AI để thay việc xem ảnh thật.
