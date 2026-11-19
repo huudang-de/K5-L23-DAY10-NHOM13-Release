@@ -59,7 +59,9 @@ Trong đó, **báo thừa (False Positive - FP) bị trừ điểm nặng tươn
 - **Hash KHÔNG chứng minh:** Chất lượng hay độ đúng của nhãn/dữ liệu bên trong (ảnh bị gán sai lớp, box bị lệch, hoặc `scene_leak` vẫn có thể tạo ra mã SHA-256 hợp lệ). Vì vậy hash chỉ đảm bảo tính nhất quán khi bàn giao, không thay thế được QC và review bằng mắt.
 
 ## 5. Truy vết
-<<Tiêu chí tầng a/b, vì sao lấy guideline theo job.>>
+- **Kết quả trên seed 999 (`runs/r999/trace.json`):** `tier_a = 2` ảnh (thuộc `scene_687`, `scene_917` do team AI báo), `tier_b = 4` ảnh khác cùng điều kiện chưa được báo, `notify = 5` mã người gán/người kiểm (`F1: tier_a 1.0 · tier_b 1.0 · notify 1.0`).
+- **Tiêu chí tầng (a)/(b):** Lọc các job dùng guideline cũ (`v1.2`) có chứa ít nhất một box detection thuộc lớp bị đổi quy tắc (`surfboard` trên `r999`, `truck` trên `de_an`); ảnh nằm trong các scene team AI nêu thuộc `tier_a`, các ảnh còn lại thỏa điều kiện thuộc `tier_b`.
+- **Vì sao lấy guideline theo `jobs.csv` (không lấy theo `metadata.json` của từng ảnh):** Vì trường `guideline_version` ở từng ảnh có thể đang bị sai do lỗi `guideline_mismatch`, trong khi `jobs.csv` lưu phiên bản guideline chuẩn áp dụng cho cả job đó.
 
 ## 6. Bug hoặc điểm chưa rõ trong lab (nếu có)
 Không phát hiện bug ở bộ script gốc trong `scripts/`.

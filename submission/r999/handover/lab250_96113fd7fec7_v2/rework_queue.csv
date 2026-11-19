@@ -1,0 +1,14 @@
+image,type,annotator,reviewer,action
+000000000632,bbox_drift,A03,Q01,vẽ lại box khít vật
+000000000872,missing_box,A03,Q01,gán box cho vật còn thiếu
+000000001818,missing_box,A03,Q01,gán box cho vật còn thiếu
+000000004134,bbox_drift,A05,Q01,vẽ lại box khít vật
+000000007784,bbox_drift,A05,Q03,vẽ lại box khít vật
+000000007818,duplicate_box,A05,Q03,xoá box lặp
+000000008629,invalid_class,A05,Q03,gán lại class_id hợp lệ (0-79)
+000000009772,invalid_class,A05,Q03,gán lại class_id hợp lệ (0-79)
+000000012748,missing_box,A01,Q02,gán box cho vật còn thiếu
+000000019402,bbox_out_of_bounds,A01,Q01,vẽ lại box nằm trong ảnh
+000000023359,class_swap,A03,Q03,sửa lớp của box theo vật thật trong ảnh
+000000023937,missing_box,A03,Q03,gán box cho vật còn thiếu
+000000025560,missing_box,A03,Q03,gán box cho vật còn thiếu
