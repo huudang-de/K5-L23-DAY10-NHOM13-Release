@@ -15,7 +15,9 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
-SCRIPT = Path(__file__).resolve().parents[1] / "tools/review_tool.py"
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "tools/review_tool.py"
+MERGE_REVIEW = ROOT / "scripts/merge_review.py"
 spec = importlib.util.spec_from_file_location("review_tool", SCRIPT)
 tool = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tool)
@@ -164,6 +166,25 @@ class ReviewToolTests(unittest.TestCase):
         self.assertIn(str(self.base / "runs/r999/candidates.json"), errors.getvalue())
         self.assertNotIn("13007", errors.getvalue())
 
+    def test_moved_cli_runs_from_outside_repo_and_preserves_defaults(self):
+        result = subprocess.run([sys.executable, "-X", "utf8", str(SCRIPT), "--help"],
+                                cwd=self.base, capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--members", result.stdout)
+        self.assertIn("runs", result.stdout)
+        self.assertIn("r999", result.stdout)
+        self.assertEqual(tool.ROOT, ROOT)
+        before = self.digest()
+        result = subprocess.run([sys.executable, "-X", "utf8", str(SCRIPT),
+                                 "--delivery", str(self.delivery), "--candidates", str(self.candidates),
+                                 "--member", "1", "--out", str(self.out), "--check"],
+                                cwd=self.base, capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("1 anh / 8 phan:", result.stdout)
+        self.assertIn("img_0001: 120x100", result.stdout)
+        self.assertEqual(before, self.digest())
+        self.assertFalse(self.out.exists())
+
     def test_yolo_coordinates_and_class_name(self):
         original, det, _, legend, warnings = tool.Dataset(self.delivery).views(self.key)
         self.assertEqual(warnings, [])
@@ -261,8 +282,7 @@ class ReviewToolTests(unittest.TestCase):
         tool.write_log(self.out, {(self.key, "class_swap"): self.row()})
         rules, merged = self.base / "rules.json", self.base / "errors.json"
         self.put_json(rules, {"errors": []})
-        result = subprocess.run([sys.executable, "-X", "utf8",
-                                 str(Path(__file__).resolve().parents[1] / "scripts/merge_review.py"),
+        result = subprocess.run([sys.executable, "-X", "utf8", str(MERGE_REVIEW),
                                  "--rules", str(rules), "--review", str(self.out), "--out", str(merged)],
                                 capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(result.returncode, 0, result.stderr)

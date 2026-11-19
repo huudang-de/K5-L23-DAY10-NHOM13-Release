@@ -6,6 +6,11 @@
 | 2 | Thành viên 4, nhóm 13, seed 13007 | Codex | Đọc PHAN_CONG_8_NGUOI.md; đổi mặc định sang tám người, thêm --members, cập nhật hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi trong lần chạy 24 kiểm thử; đã đối chiếu để bỏ các giới hạn sáu người trong code và hướng dẫn hiện hành. | Kiểm tra mặc định tám phần, tùy chỉnh 1/2/3/6/8/10/12 phần, tính đủ/không trùng/cân bằng, biên CLI, GUI theo số thành viên và gộp CSV của 6/8/10 người. |
 | 3 | Thành viên 4, nhóm 13, seed 999 | Codex | Đổi seed mặc định từ 13007 sang 999, giữ tám người, cập nhật đường dẫn, hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi qua 26 kiểm thử; đã kiểm tra đường dẫn đầu vào/đầu ra theo seed mới và không dùng dữ liệu seed cũ khi thiếu candidates. | 26/26 kiểm thử đạt; render 250 ảnh r999, so SHA-256 của 758 file delivery trước/sau đều không đổi. |
 | 4 | Nguyễn Văn Nhất | Codex | Rà soát phân công, viết và kiểm tra validator cho 5 lỗi File & Detection trước khi commit. Chi tiết ở Prompt 4. | Lần đầu chạy `run_lab.py`, `-X utf8` chỉ áp dụng cho tiến trình cha. Tiến trình con báo lỗi mã hóa khi in tiếng Việt sau khi tạo lô. | Đã kiểm 16 ca giả lập và chạy CLI trên seed 999, seed bổ sung 11 và lô sạch 50 ảnh. Validator báo lần lượt 6, 7 và 0 phát hiện File & Detection. |
+| 5 | Trần Anh Tùng (TV5) | Claude Code | Viết script dựng lô v2 từ `errors.json` theo GUIDE Pha 4, kiểm bằng `check_handover.py`. Chi tiết ở Prompt 5. | Bản đầu ghi sẵn "đã mở kiểm" cho ảnh `wrong_hash` khi chưa ai mở ảnh; đã sửa. | Chạy thử trên seed phụ trong thư mục tạm: PASS H1–H15. |
+| 6 | Thành viên 4, nhóm 13, seed 999 | Codex | Cập nhật đường dẫn/import/test/hướng dẫn sau khi người dùng chuyển tool sang tools/review_tool.py; không sửa file gốc scripts/. | Sau khi di chuyển, test còn nạp đường dẫn cũ và suy ra merge_review.py từ thư mục tool. Đã đổi import sang tools/ và tách đường dẫn script gộp từ gốc repo. | 27/27 kiểm thử đạt; chạy CLI từ ngoài repo và kiểm tra tương thích scripts/merge_review.py. SHA-256 của 12 file gốc trong scripts/ không đổi. |
+| 7 | Thành viên 4, nhóm 13, seed 999 | Codex | Gộp ba file xung đột rebase, giữ công việc hai phía, tool trong tools/, seed 999 và tám người; không sửa script gốc hoặc force push. | Hai phía cùng dùng số Prompt 4 cho hai công việc khác nhau; đã giữ mục validator của Nguyễn Văn Nhất là 4 và đánh lại mục chuyển tool là 5, bảo toàn nội dung cả hai. | 27/27 kiểm thử review đạt; đối chiếu nội dung và AST xác nhận giữ mã thực thi/test của phía nhóm trưởng và test CLI mới; so hash script gốc trước/sau. |
+
+Đường dẫn tool hiện hành: **`tools/review_tool.py`**. Các đường dẫn cũ trong Prompt 1–3 bên dưới được giữ lại để bảo toàn lịch sử; dùng lệnh hiện hành trong `submission/REVIEW_TOOL.md`.
 
 ## Prompt 1 — Thành viên 4: công cụ review
 
@@ -91,3 +96,60 @@ hãy đảm bảo kết quả của tôi đạt trước khi commit phần công
 - Chạy validator trên dữ liệu COCO thật. Seed 999 có 6 phát hiện, seed 11 có 7 phát hiện và lô sạch 50 ảnh có 0 phát hiện. Số liệu lấy từ `rules.json` của từng lô và chỉ phản ánh năm luật File & Detection. F1 của validator chung chưa được đo ở bước này.
 - Lần chạy `run_lab.py` đã tạo lô seed 999 trước khi tiến trình con gặp lỗi mã hóa. Có thể đặt `$env:PYTHONUTF8 = "1"` trong PowerShell để các tiến trình Python con kế thừa chế độ UTF-8. Lô đã tạo chạy được qua CLI validator.
 - Nguyễn Văn Nhất sẽ tự xem ảnh do TV4 phân công và ghi kết luận vào `review_log.csv` ở pha luyện tập và đề ẩn.
+
+## Prompt 5 — Trần Anh Tùng: bàn giao v2
+
+Ngày 19/11/2026, Claude Code. Yêu cầu (tóm tắt):
+
+```text
+Tôi phụ trách TV5 (lineage và bàn giao v2). Đọc GUIDE Pha 3–4, RULES, RUBRIC mục 3 và check_handover.py.
+Viết script chỉ dùng thư viện chuẩn, dựng lô v2 từ errors.json mà không sửa delivery/ hay scripts/.
+Không đọc _private/, data_source/, không chạy score_findings.py. Không tự kết luận thay người xem ảnh.
+Chạy thử trên seed phụ, không ghi lineage của seed nhóm.
+```
+
+- AI viết `tools/build_v2.py` và chạy thử trên seed 4242 với `errors.json` giả lập (chỉ để thử, không nộp).
+- Tôi tự mở xem ảnh `wrong_hash`, ghi HOLD, dựng v2 thật và chạy `check_handover.py` trên `runs/r999`.
+
+## Prompt 6 — Cập nhật sau khi chuyển tool sang tools/
+
+Ngày: 19/11/2026. Công cụ: Codex. Prompt người dùng (chuẩn hóa xuống dòng):
+
+```text
+Tôi đã chuyển scripts/review_tool.py sang tools/review_tool.py theo yêu cầu leader.
+
+Hãy cập nhật các đường dẫn, import, file test và hướng dẫn sử dụng tương ứng. Không thay đổi bất kỳ file gốc nào trong scripts/. Chạy lại kiểm thử.
+```
+
+- Giữ nguyên thao tác di chuyển của người dùng. Cập nhật ví dụ chạy trong docstring của `tools/review_tool.py` và mọi lệnh hiện hành trong `submission/REVIEW_TOOL.md`. Gốc repo vẫn là `Path(__file__).resolve().parents[1]`; mặc định giữ seed 999, tám người, phần thứ tư.
+- `tests/test_review_tool.py` nạp `tools/review_tool.py` bằng importlib. Đường dẫn script lab để kiểm tra tương thích được đặt riêng là `ROOT / "scripts/merge_review.py"`, không suy ra từ thư mục tool và không chuyển/sửa script gộp.
+- Chạy `py -X utf8 -m unittest discover -s tests -p test_review_tool.py -v`: **27/27 đạt**. Test mới gọi CLI bằng đường dẫn tuyệt đối từ một thư mục tạm ngoài repo, kiểm tra `--help`, render fixture với `--check`, mặc định tám phần, gốc repo và không tạo verdict/log khi chỉ kiểm tra. Test tương thích script gộp có sẵn và GUI vẫn đạt.
+- Đã chạy `py -X utf8 tools/review_tool.py --help`. So SHA-256 trước/sau của **12 file gốc còn hiện diện trong scripts/** (không tính cache Python), toàn bộ không đổi. Không khôi phục bản tool cũ trong scripts/; không ghi dữ liệu thật, không đọc nguồn bị cấm hoặc đáp án.
+
+## Prompt 7 — Gộp xung đột rebase, bảo toàn công việc nhóm
+
+Ngày: 19/11/2026. Công cụ: Codex. Prompt người dùng (chuẩn hóa xuống dòng):
+
+```text
+Git đang bị rebase conflict. Hãy giải quyết 3 file xung đột, giữ lại đầy đủ công việc của tôi và các thành viên khác.
+
+Đảm bảo review_tool.py nằm trong tools/, sử dụng seed 999 và hỗ trợ 8 thành viên. Không sửa các script gốc của bài lab.
+
+Chạy lại kiểm thử sau khi xử lý. Không force push.
+```
+
+- Đối chiếu bản gốc và cả hai phía của ba file `tools/review_tool.py`, `tests/test_review_tool.py`, `submission/prompts.md`; sao lưu file có conflict vào thư mục tạm trước khi gộp. Giữ phần hướng dẫn đã được Git gộp tự động, gồm đường dẫn tools/ và thông tin của nhóm trưởng.
+- Tool giữ toàn bộ mã thực thi của hai phía, mặc định `runs/r999/delivery/`, tám người và phần thứ tư. Ví dụ đề ẩn dùng tên log `review_log_m4.csv`. Test giữ đường dẫn tool mới, đường dẫn `scripts/merge_review.py` tính từ gốc repo và test chạy CLI từ ngoài repo.
+- Giữ nguyên nội dung nhật ký validator File & Detection của Nguyễn Văn Nhất ở Prompt 4; giữ nhật ký chuyển tool của TV4 và đánh số lại thành Prompt 5 để không trùng. Đã đối chiếu toàn văn hai mục với hai bản Git trước khi tiếp tục rebase.
+- Chạy `py -X utf8 -m unittest discover -s tests -p test_review_tool.py -v`: **27/27 đạt**. Kiểm tra `--help` xác nhận mặc định r999 và tám người; so AST xác nhận không mất mã thực thi tool hoặc các test đã có của phía nhóm trưởng. Các test dùng dữ liệu tổng hợp và không ghi kết luận review thật.
+- Không sửa file gốc trong scripts/, không đọc nguồn bị cấm/đáp án và không force push. Giữ nguyên tác giả commit khi tiếp tục rebase.
+
+### Lần xử lý tiếp theo — gộp bổ sung nhật ký TV5
+
+Prompt người dùng:
+
+```text
+Hãy giải quyết conflict trong submission/prompts.md, giữ đầy đủ nội dung của tôi và các thành viên khác, loại bỏ phần trùng lặp. Sau đó git add file đã xử lý và hoàn tất git rebase --continue. Không force push.
+```
+
+Giữ các mục chung 1–4 một lần, giữ mục bàn giao v2 của Trần Anh Tùng là Prompt 5; chuyển mục di dời tool thành Prompt 6 và lần gộp rebase trước thành Prompt 7. Nội dung riêng, người thực hiện và số liệu của cả hai phía được giữ nguyên; các số mục trong mô tả đợt xử lý trước phản ánh lịch sử lúc đó. Đã đối chiếu đầy đủ các phần và các dòng bảng với cả hai bản Git trước khi stage.

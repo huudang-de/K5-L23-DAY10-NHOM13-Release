@@ -2,6 +2,8 @@
 
 Theo `PHAN_CONG_8_NGUOI.md`, nhóm gồm **Lead + 7 thành viên**. Tool mặc định chia **8 phần**, có thể đổi bằng `--members`.
 
+Công cụ của nhóm đặt tại **`tools/review_tool.py`**. Các lệnh bên dưới dùng vị trí mới; script lab `scripts/merge_review.py` giữ nguyên vị trí và nội dung. Test nạp tool từ `tools/`, còn đường dẫn script gộp được tính riêng từ gốc repo.
+
 Chạy từ thư mục gốc repo bằng Python 3.10+ trên Windows. Cài Python bản có Tcl/Tk (bản cài chuẩn từ python.org) và Pillow:
 
 ```powershell
@@ -100,6 +102,6 @@ py -X utf8 tools/review_tool.py --members 8 --member 4 --preview runs/r999/revie
 
 Hai lệnh cuối cần candidates thật đã được xuất. `--check` render toàn bộ phần được chia và in cảnh báo kỹ thuật; `--preview` xuất ba khung của ảnh đầu tiên. Chúng không ghi review hoặc kết luận đúng/sai.
 
-Test tự động chỉ tạo dữ liệu tổng hợp trong thư mục tạm, gồm tên ảnh đề ẩn, mask RGB có nhiều byte id, ảnh thiếu, mask sai kích thước, CSV tiếng Việt, chia mặc định tám phần và tùy chỉnh 1/2/3/6/8/10/12 phần, gộp xung đột, tương thích `merge_review.py`, và thao tác Tkinter. Có kiểm tra tham số ngoài phạm vi, phần rỗng, tiêu đề/trạng thái GUI theo số thành viên, đường dẫn mặc định seed 999 và báo thiếu candidates không tự tìm sang seed cũ. **26/26 kiểm thử đạt** khi cập nhật seed 999, nhóm tám người. Các verdict trong test là dữ liệu giả cho kiểm thử, không được chép vào bài nộp.
+Test tự động chỉ tạo dữ liệu tổng hợp trong thư mục tạm, gồm tên ảnh đề ẩn, mask RGB có nhiều byte id, ảnh thiếu, mask sai kích thước, CSV tiếng Việt, chia mặc định tám phần và tùy chỉnh 1/2/3/6/8/10/12 phần, gộp xung đột, tương thích `merge_review.py`, và thao tác Tkinter. Có kiểm tra tham số ngoài phạm vi, phần rỗng, tiêu đề/trạng thái GUI theo số thành viên, đường dẫn mặc định seed 999 và báo thiếu candidates không tự tìm sang seed cũ. **27/27 kiểm thử đạt** sau khi chuyển tool sang `tools/`, gồm chạy CLI bằng đường dẫn tuyệt đối từ ngoài repo và xác minh gốc repo/đường dẫn mặc định vẫn đúng. Các verdict trong test là dữ liệu giả cho kiểm thử, không được chép vào bài nộp.
 
 Đường dẫn đầu vào được chặn nếu chứa `_private`/`data_source` hoặc trỏ ra ngoài delivery qua manifest. Đầu ra CSV/preview bị chặn trong delivery; các lần lưu CSV dùng file tạm và thay thế nguyên tử. Tool không truy cập mạng, nguồn COCO hay bộ chấm đáp án.
