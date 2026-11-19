@@ -5,7 +5,7 @@
 
 | Họ và tên | MSHV | Tài khoản GitHub | Phần chính |
 |---|---|---|---|
-| <<Họ và tên Lead>> | <<MSHV>> | huudang-de | Lead: điều phối, P0/P6 (bảo mật, REPORT, nộp bài) & review ảnh |
+| <<Họ và tên Lead>> | 2A202603300 | huudang-de | Lead: điều phối, P0/P6 (bảo mật, REPORT, nộp bài) & review ảnh |
 | <<Thành viên 1>> | <<MSHV>> | <<GitHub>> | Validator luật (File & Detection) & review ảnh |
 | <<Thành viên 2>> | <<MSHV>> | <<GitHub>> | Validator luật (Metadata & Panoptic) & review ảnh |
 | <<Thành viên 3>> | <<MSHV>> | <<GitHub>> | Đối chiếu detection ↔ panoptic & review ảnh |
