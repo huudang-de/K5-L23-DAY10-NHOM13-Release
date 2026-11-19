@@ -1,0 +1,18 @@
+image,type,verdict,note
+img_0023,instance_merge,rejected,"[reviewer=huudang-de] Cac box om dung vat the, khong co loi gan nhan, anh da co duplicate_box trong rules.json"
+img_0028,category_swap,rejected,"[reviewer=Edelzz] thấy box đang vẽ chưa khớp hết phần bánh xe motobike có thể nội suy, do dính con mèo nên bị thiếu chỗ này"
+img_0036,missing_box,confirmed,[reviewer=hungvu208] có 2 người nm bbox chỉ 1 người
+img_0061,category_swap,confirmed,"[reviewer=Tuan-Bach] Vat the trong anh la banh ngot cake, detection gan dung cake nhung panoptic bi doi nham thanh donut"
+img_0061,class_swap,rejected,"[reviewer=Tuan-Bach] Detection gan dung nhan cake theo dung vat the trong anh, panoptic moi la ben sai nen khong phai class_swap"
+img_0063,category_swap,rejected,[reviewer=leminhthang96] bbox đang nhận diện sai cái d2 lỗi lớp
+img_0079,missing_box,confirmed,[reviewer=trananhtung1] bbox đang bị thiếu box con mèo
+img_0117,bbox_drift,confirmed,[reviewer=TT1172001] bbox con voi đang bị lệch
+img_0119,bbox_drift,rejected,"[reviewer=Dang-Van-Ly] Anh da co loi luat bbox_out_of_bounds trong rules.json, khong confirm them bbox_drift"
+img_0131,missing_box,confirmed,[reviewer=huudang-de] Càng xe về sau thì xe máy càng bị bỏ qua
+img_0165,instance_merge,rejected,"[reviewer=Edelzz] Anh da co loi luat duplicate_box (2 box trung tren 1 person), khong confirm them instance_merge"
+img_0171,missing_box,confirmed,"[reviewer=hungvu208] bbox bị thiếu starts, road"
+img_0178,bbox_drift,confirmed,[reviewer=Tuan-Bach] Bounding box xe o to o toa do x=495 bi troi lech sang phai so voi mask segment cua xe
+img_0199,missing_box,confirmed,[reviewer=leminhthang96] bbox đang thiếu 1 person do bị khuất
+img_0226,instance_merge,confirmed,[reviewer=trananhtung1] segment đang gộp balo vào chung backpack
+img_0238,category_swap,confirmed,[reviewer=TT1172001] segement đang nhận cả khúc gỗ vào một thành cái búa
+img_0245,missing_box,confirmed,[reviewer=Dang-Van-Ly] bbox đang bị thiếu mất cái tolet
