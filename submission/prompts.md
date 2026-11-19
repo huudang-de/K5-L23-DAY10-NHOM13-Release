@@ -5,6 +5,7 @@
 | 1 | Thành viên 4, nhóm 13, seed 13007 | Codex | Đọc bốn tài liệu lab; viết tool Python/Pillow review ảnh YOLO/Panoptic, chia sáu người, ghi CSV, hỗ trợ luyện tập/đề ẩn; kiểm thử và ghi prompt. Toàn văn bên dưới. | Rà soát phát hiện bản đầu chưa hỗ trợ xuất CSV chỉ có header khi phần được chia không có ảnh; đã bổ sung thao tác lưu phần rỗng và kiểm thử hồi quy. | AI đã chạy 19 kiểm thử tự động bằng fixture tổng hợp, gồm GUI Tkinter và tương thích merge_review.py; render 250 ảnh delivery và so SHA-256 của 758 file trước/sau. Thành viên thật vẫn phải trực tiếp xem ảnh và tự kết luận; chưa có review thật trong phiên này. |
 | 2 | Thành viên 4, nhóm 13, seed 13007 | Codex | Đọc PHAN_CONG_8_NGUOI.md; đổi mặc định sang tám người, thêm --members, cập nhật hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi trong lần chạy 24 kiểm thử; đã đối chiếu để bỏ các giới hạn sáu người trong code và hướng dẫn hiện hành. | Kiểm tra mặc định tám phần, tùy chỉnh 1/2/3/6/8/10/12 phần, tính đủ/không trùng/cân bằng, biên CLI, GUI theo số thành viên và gộp CSV của 6/8/10 người. |
 | 3 | Thành viên 4, nhóm 13, seed 999 | Codex | Đổi seed mặc định từ 13007 sang 999, giữ tám người, cập nhật đường dẫn, hướng dẫn và kiểm thử. Toàn văn bên dưới. | Chưa phát hiện lỗi qua 26 kiểm thử; đã kiểm tra đường dẫn đầu vào/đầu ra theo seed mới và không dùng dữ liệu seed cũ khi thiếu candidates. | 26/26 kiểm thử đạt; render 250 ảnh r999, so SHA-256 của 758 file delivery trước/sau đều không đổi. |
+| 4 | Nguyễn Văn Nhất | Codex | Rà soát phân công, viết và kiểm tra validator cho 5 lỗi File & Detection trước khi commit. Chi tiết ở Prompt 4. | Lần đầu chạy `run_lab.py`, `-X utf8` chỉ áp dụng cho tiến trình cha. Tiến trình con báo lỗi mã hóa khi in tiếng Việt sau khi tạo lô. | Đã kiểm 16 ca giả lập và chạy CLI trên seed 999, seed bổ sung 11 và lô sạch 50 ảnh. Validator báo lần lượt 6, 7 và 0 phát hiện File & Detection. |
 
 ## Prompt 1 — Thành viên 4: công cụ review
 
@@ -73,3 +74,20 @@ Nhóm đổi seed từ 13007 sang 999 và có 8 thành viên. Hãy cập nhật 
 - Đã chạy `py -X utf8 -m unittest discover -s tests -p test_review_tool.py -v`: **26/26 đạt**. Hai kiểm thử mới dùng repo tạm có `runs/r999/` để xác minh lựa chọn delivery/candidates/log mặc định, tám phần và phần thứ tư; kiểm tra báo thiếu candidates ở r999 thay vì tự chuyển sang seed khác. Kiểm thử đường dẫn tùy chỉnh, GUI, CSV và gộp log vẫn đạt.
 - Đã kiểm tra `--help` hiển thị đường dẫn r999 và mặc định tám người. Kiểm tra kỹ thuật trực tiếp `runs/r999/delivery/`: render **250 ảnh**, **4.422 mục nhãn**, không có cảnh báo đọc/render. So SHA-256 trước/sau của **758 file**, toàn bộ không đổi. Đây chỉ là kiểm tra hiển thị, không kết luận nhãn đúng/sai hoặc số lỗi.
 - Chưa có `runs/r999/candidates.json` lúc thực hiện. Nhóm cần thành viên phụ trách validator xuất file trước khi review thật. Không tạo review thật hoặc tự chuyển log giữa các seed; không sửa delivery/script lab có sẵn, không đọc `_private/`, `data_source/` hay đáp án gốc.
+
+## Prompt 4 — Nguyễn Văn Nhất: validator File & Detection
+
+Công cụ Codex. Yêu cầu của người dùng được trích từ cuộc trao đổi:
+
+```text
+hãy kiểm tra phần Validator luật (File & Detection) & review ảnh của tôi, hệ thống chi tiết những việc tôi cần thao tác và chúng ta sẽ bắt đầu làm
+hãy đảm bảo kết quả của tôi đạt trước khi commit phần công việc
+```
+
+### Phạm vi AI đã làm và cách kiểm lại
+
+- Viết năm kiểm tra `missing_image`, `wrong_hash`, `invalid_class`, `bbox_out_of_bounds` và `duplicate_box` bằng thư viện chuẩn. Hàm `check_file_detection()` trả về các cặp `type` và `target` để TV2 ghép vào validator chung.
+- Chạy 16 ca giả lập, gồm SHA-256 trên bytes, class ngoài phạm vi, box tràn ở cả bốn mép, làm tròn sát mép, cặp box gần nhau và đường dẫn nằm ngoài `delivery/`. Tất cả cho kết quả dự kiến.
+- Chạy validator trên dữ liệu COCO thật. Seed 999 có 6 phát hiện, seed 11 có 7 phát hiện và lô sạch 50 ảnh có 0 phát hiện. Số liệu lấy từ `rules.json` của từng lô và chỉ phản ánh năm luật File & Detection. F1 của validator chung chưa được đo ở bước này.
+- Lần chạy `run_lab.py` đã tạo lô seed 999 trước khi tiến trình con gặp lỗi mã hóa. Có thể đặt `$env:PYTHONUTF8 = "1"` trong PowerShell để các tiến trình Python con kế thừa chế độ UTF-8. Lô đã tạo chạy được qua CLI validator.
+- Nguyễn Văn Nhất sẽ tự xem ảnh do TV4 phân công và ghi kết luận vào `review_log.csv` ở pha luyện tập và đề ẩn.
