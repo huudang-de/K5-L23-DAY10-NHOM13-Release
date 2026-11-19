@@ -1,7 +1,7 @@
 # Nhóm 13
 
 - Seed luyện tập: 999
-- Repo: https://github.com/huudang-de/K5-L23-DAY10-NHOM13-Release
+- Repo: https://github.com/huudang-de/K5-L23-DAY10-TryHard-Release
 
 | Họ và tên | MSHV | Tài khoản GitHub | Phần chính |
 |---|---|---|---|
