@@ -9,5 +9,5 @@
 | <<Thành viên 1>> | <<MSHV>> | <<GitHub>> | Validator luật (File & Detection) & review ảnh |
 | <<Thành viên 2>> | <<MSHV>> | <<GitHub>> | Validator luật (Metadata & Panoptic) & review ảnh |
 | <<Thành viên 3>> | <<MSHV>> | <<GitHub>> | Đối chiếu detection ↔ panoptic & review ảnh |
-| <<Thành viên 4>> | <<MSHV>> | <<GitHub>> | Tool xem ảnh, tổng hợp review_log & review ảnh |
+| leminhthang | 2A202603292 | leminhthang96 | Tool xem ảnh, tổng hợp review_log & review ảnh |
 | <<Thành viên 5>> | <<MSHV>> | <<GitHub>> | Lineage, bàn giao v2, truy vết ticket & review ảnh |
