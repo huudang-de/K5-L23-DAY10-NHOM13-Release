@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Chạy toàn bộ các kiểm tra lỗi luật Pha 1 (File & Detection + Metadata & Panoptic) và xuất lỗi theo định dạng của lab."""
+"""Validator của Nhóm 13:
+- File & Detection (Nguyễn Văn Nhất - TV1)
+- Metadata & Panoptic (Vũ Hữu Hưng - TV2)
+- Đối chiếu Detection ↔ Panoptic xuất candidates (Bạch Đăng Ngọc Tuấn - TV3)
+
+Sử dụng:
+  py -X utf8 validator/validate.py <delivery> --out <errors.json> [--candidates <candidates.json>]
+"""
 
 from __future__ import annotations
 
@@ -11,13 +18,19 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CURRENT_DIR = Path(__file__).resolve().parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
 sys.path.insert(0, str(ROOT / "scripts"))
+
 import pngutil  # noqa: E402
 
 if __package__:
     from .file_detection import check_file_detection
+    from .cross_check import find_candidates
 else:
     from file_detection import check_file_detection
+    from cross_check import find_candidates
 
 
 def check_metadata(delivery_dir: Path) -> list[dict[str, str]]:
@@ -33,7 +46,6 @@ def check_metadata(delivery_dir: Path) -> list[dict[str, str]]:
     if not jobs_path.is_file() or not metadata_path.is_file():
         return errors
 
-    # Đọc guideline chuẩn của từng job từ jobs.csv
     job_guidelines: dict[str, str] = {}
     with jobs_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
@@ -43,7 +55,6 @@ def check_metadata(delivery_dir: Path) -> list[dict[str, str]]:
             if job_id:
                 job_guidelines[job_id] = guideline
 
-    # Đọc metadata.json
     meta_doc = json.loads(metadata_path.read_text(encoding="utf-8"))
     items = meta_doc.get("items", [])
 
@@ -59,12 +70,10 @@ def check_metadata(delivery_dir: Path) -> list[dict[str, str]]:
         if scene_id and split:
             scene_splits[scene_id].add(split)
 
-        # Kiểm tra guideline_mismatch: so với guideline của job trong jobs.csv
         expected_guideline = job_guidelines.get(job_id)
         if expected_guideline is not None and img_guideline != expected_guideline:
             errors.append({"type": "guideline_mismatch", "target": img_name})
 
-    # Kiểm tra scene_leak: một scene_id xuất hiện ở nhiều hơn 1 split (cả train và val)
     for scene_id, splits in sorted(scene_splits.items()):
         if len(splits) > 1:
             errors.append({"type": "scene_leak", "target": scene_id})
@@ -75,7 +84,6 @@ def check_metadata(delivery_dir: Path) -> list[dict[str, str]]:
 def _count_mask_segments(mask_path: Path) -> Counter[int]:
     """Đếm số pixel thực tế của từng segment_id (> 0) trong file mask PNG."""
     _, _, pixels = pngutil.read_rgb(mask_path)
-    # Tối ưu tốc độ đếm trên pure Python bằng cách gom bộ 3 byte (R, G, B)
     rgb_triplets = zip(pixels[0::3], pixels[1::3], pixels[2::3])
     triplet_counts = Counter(rgb_triplets)
 
@@ -102,7 +110,6 @@ def check_panoptic(delivery_dir: Path) -> list[dict[str, str]]:
     categories = pan_doc.get("categories", [])
     valid_cat_ids = {c["id"] for c in categories if "id" in c}
 
-    # Map image_id -> tên ảnh (stem không có đuôi)
     id_to_stem: dict[int, str] = {}
     for img in pan_doc.get("images", []):
         if "id" in img and "file_name" in img:
@@ -117,13 +124,11 @@ def check_panoptic(delivery_dir: Path) -> list[dict[str, str]]:
 
         segments_info = ann.get("segments_info", [])
 
-        # 1. Kiểm tra invalid_category_id
         has_invalid_cat = any(seg.get("category_id") not in valid_cat_ids for seg in segments_info)
         if has_invalid_cat:
             errors.append({"type": "invalid_category_id", "target": target})
             continue
 
-        # 2. Kiểm tra thing_overlap (đếm pixel thực tế trong mask PNG rồi so với area)
         mask_path = masks_dir / Path(file_name).name if file_name else masks_dir / f"{target}.png"
         if not mask_path.is_file():
             continue
@@ -146,38 +151,41 @@ def check_panoptic(delivery_dir: Path) -> list[dict[str, str]]:
     return errors
 
 
-def validate(delivery_dir: Path) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-    """Chạy toàn bộ kiểm tra lỗi luật Pha 1 trên thư mục delivery."""
+def validate(delivery_dir: Path, include_candidates: bool = False) -> tuple[list[dict[str, str]], dict]:
+    """Chạy toàn bộ kiểm tra lỗi luật Pha 1 và đối chiếu Pha 2 (nếu yêu cầu)."""
     errors: list[dict[str, str]] = []
     errors.extend(check_file_detection(delivery_dir))
     errors.extend(check_metadata(delivery_dir))
     errors.extend(check_panoptic(delivery_dir))
 
-    candidates: list[dict[str, str]] = []
-    return errors, candidates
+    cand_result = find_candidates(delivery_dir) if include_candidates else {"candidates": []}
+    return errors, cand_result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("delivery", type=Path, help="Đường dẫn tới thư mục delivery")
-    parser.add_argument("--out", type=Path, required=True, help="Đường dẫn file xuất errors.json")
+    parser.add_argument("--out", type=Path, required=True, help="Đường dẫn file xuất errors.json hoặc rules.json")
     parser.add_argument("--candidates", type=Path, required=False, help="Đường dẫn file xuất candidates.json")
     args = parser.parse_args()
 
-    if not args.delivery.is_dir():
-        raise SystemExit(f"Thư mục delivery không tồn tại: {args.delivery}")
+    delivery = args.delivery.resolve()
+    if not delivery.is_dir():
+        raise SystemExit(f"Thư mục delivery không tồn tại: {delivery}")
 
-    errors, candidates = validate(args.delivery)
+    errors, cand_result = validate(delivery, include_candidates=args.candidates is not None)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps({"errors": errors}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"[Validator] Đã phát hiện {len(errors)} lỗi luật -> {args.out}")
 
     if args.candidates is not None:
         args.candidates.parent.mkdir(parents=True, exist_ok=True)
         args.candidates.write_text(
-            json.dumps({"candidates": candidates}, indent=2, ensure_ascii=False) + "\n",
+            json.dumps(cand_result, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
+        print(f"[CrossCheck] Đã sinh {len(cand_result.get('candidates', []))} ứng viên nghi vấn -> {args.candidates}")
 
     return 0
 
