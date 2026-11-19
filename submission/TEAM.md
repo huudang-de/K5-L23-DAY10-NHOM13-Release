@@ -6,7 +6,7 @@
 | Họ và tên | MSHV | Tài khoản GitHub | Phần chính |
 |---|---|---|---|
 | Nguyễn Hữu Đăng | 2A202603300 | huudang-de | Lead: điều phối, P0/P6 (bảo mật, REPORT, nộp bài) & review ảnh |
-| <<Thành viên 1>> | <<MSHV>> | <<GitHub>> | Validator luật (File & Detection) & review ảnh |
+| Nguyễn Văn Nhất | 2A202603278 | Edelzz | Validator luật (File & Detection) & review ảnh |
 | <<Thành viên 2>> | <<MSHV>> | <<GitHub>> | Validator luật (Metadata & Panoptic) & review ảnh |
 | <<Thành viên 3>> | <<MSHV>> | <<GitHub>> | Đối chiếu detection ↔ panoptic & review ảnh |
 | leminhthang | 2A202603292 | leminhthang96 | Tool xem ảnh, tổng hợp review_log & review ảnh |
