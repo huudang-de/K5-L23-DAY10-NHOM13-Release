@@ -1,6 +1,6 @@
 # Nhóm 13
 
-- Seed luyện tập: 13007
+- Seed luyện tập: 999
 - Repo: https://github.com/huudang-de/K5-L23-Day10-Dataset-Release-Handover
 
 | Họ và tên | MSHV | Tài khoản GitHub | Phần chính |
