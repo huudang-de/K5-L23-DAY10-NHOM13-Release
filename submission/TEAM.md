@@ -10,6 +10,6 @@
 | Vũ Hữu Hưng | 2A202603306 | hungvu208 | Validator luật (Metadata & Panoptic) & review ảnh |
 | Bạch Đăng Ngọc Tuấn | 2A202603314 | Tuan-Bach | Đối chiếu detection ↔ panoptic & review ảnh |
 | Lê Minh Thắng | 2A202603292 | leminhthang96 | Tool xem ảnh, tổng hợp review_log & review ảnh |
-| <<Thành viên 5>> | <<MSHV>> | <<GitHub>> | Lineage, bàn giao v2 & review ảnh |
-| <<Thành viên 6>> | <<MSHV>> | <<GitHub>> | Truy vết ticket (trace.json), test đa seed & review ảnh |
+| Trần Anh Tùng | 2A202603280 | trananhtung1 | Lineage, bàn giao v2 & review ảnh |
+| Nguyễn Hoàng Thành | 2A202603296 | TT1172001 | Truy vết ticket (trace.json), test đa seed & review ảnh |
 | <<Thành viên 7>> | <<MSHV>> | <<GitHub>> | Bảo mật (security.md), prompts.md, kiểm toán review_log & review ảnh |

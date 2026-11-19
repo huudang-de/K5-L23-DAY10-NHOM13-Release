@@ -15,7 +15,7 @@ Validator kiểm năm lỗi `missing_image`, `wrong_hash`, `invalid_class`, `bbo
 | Seed bổ sung 11 | 250 | 7 — 1 thiếu ảnh, 2 sai hash, 2 box tràn mép, 2 box trùng |
 | Lô sạch | 50 | 0 |
 
-Các số trên là đầu ra của năm luật. F1 chung sẽ được ghi sau khi nhóm tích hợp và chấm validator đầy đủ. Chi tiết cách dùng AI và kiểm lại nằm trong mục Prompt 2 của [prompts.md](prompts.md).
+Các số trên là đầu ra của năm luật. F1 chung sẽ được ghi sau khi nhóm tích hợp và chấm validator đầy đủ. Chi tiết cách dùng AI và kiểm lại nằm trong mục Prompt 4 của [prompts.md](prompts.md).
 
 ## 2. Vì sao báo hết ứng viên làm F1 giảm?
 <<Trả lời bằng số của nhóm.>>
