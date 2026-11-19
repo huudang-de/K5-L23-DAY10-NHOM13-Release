@@ -13,7 +13,7 @@ py -m pip install "Pillow>=11"
 Sau khi thành viên phụ trách validator đã xuất `runs/r999/candidates.json`:
 
 ```powershell
-py -X utf8 scripts/review_tool.py --members 8 --member 4 --reviewer "leminhthang96"
+py -X utf8 tools/review_tool.py --members 8 --member 4 --reviewer "leminhthang96"
 ```
 
 Mặc định đọc `runs/r999/delivery/`, ghi riêng `runs/r999/review_log_m4.csv`. Thay tên người xem bằng họ tên hoặc mã thành viên thực tế. Không có candidates thì tool báo thiếu file, không tự sinh danh sách lỗi.
@@ -23,7 +23,7 @@ Tool tự tìm candidates ở `runs/r999/candidates.json`. Đường dẫn mặc
 Các phần được đánh số **1–8**, chia vòng tròn theo tên ảnh đã sắp xếp. Số ảnh giữa hai phần chênh tối đa một; mọi giả thuyết cho cùng một ảnh thuộc cùng một phần. Nhóm có thể thống nhất **TV1–TV7 dùng phần 1–7, Lead dùng phần 8**. Nếu nhóm dùng cách đánh số khác, chỉ đổi `--member` tương ứng. Ví dụ Lead:
 
 ```powershell
-py -X utf8 scripts/review_tool.py --members 8 --member 8 --reviewer "huudang-de"
+py -X utf8 tools/review_tool.py --members 8 --member 8 --reviewer "huudang-de"
 ```
 
 Cả tám người phải dùng **cùng một phiên bản candidates.json và cùng giá trị --members**. Không đổi danh sách hoặc số thành viên giữa chừng vì phần được chia sẽ thay đổi. Mỗi người dùng CSV riêng, không cùng ghi một file qua ổ mạng.
@@ -35,8 +35,8 @@ Cả tám người phải dùng **cùng một phiên bản candidates.json và c
 Ví dụ giữ cách chia cũ cho 6 người, hoặc chia cho 10 người:
 
 ```powershell
-py -X utf8 scripts/review_tool.py --members 6 --member 4 --reviewer "leminhthang96"
-py -X utf8 scripts/review_tool.py --members 10 --member 10 --reviewer "Nguoi10"
+py -X utf8 tools/review_tool.py --members 6 --member 4 --reviewer "leminhthang96"
+py -X utf8 tools/review_tool.py --members 10 --member 10 --reviewer "Nguoi10"
 ```
 
 Nếu nhóm đã bắt đầu review với 6 phần, dùng `--members 6` để tiếp tục đúng cách chia cũ. Khi chuyển sang 8 phần, giữ các log cũ để đối chiếu, thống nhất lại phân công và dùng file mới (ví dụ `--out runs/r999/review_log_8_m4.csv`); tool không tự phân lại các kết luận đã lưu. Lệnh gộp phải dùng đúng bộ file mà nhóm đã thống nhất.
@@ -57,7 +57,7 @@ CSV UTF-8 không BOM, header chính xác `image,type,verdict,note`; image không
 Sau khi mọi người review xong, tập hợp tám file về cùng máy:
 
 ```powershell
-py -X utf8 scripts/review_tool.py --merge runs/r999/review_log_m1.csv runs/r999/review_log_m2.csv runs/r999/review_log_m3.csv runs/r999/review_log_m4.csv runs/r999/review_log_m5.csv runs/r999/review_log_m6.csv runs/r999/review_log_m7.csv runs/r999/review_log_m8.csv --out runs/r999/review_log.csv
+py -X utf8 tools/review_tool.py --merge runs/r999/review_log_m1.csv runs/r999/review_log_m2.csv runs/r999/review_log_m3.csv runs/r999/review_log_m4.csv runs/r999/review_log_m5.csv runs/r999/review_log_m6.csv runs/r999/review_log_m7.csv runs/r999/review_log_m8.csv --out runs/r999/review_log.csv
 ```
 
 Phần không có ảnh vẫn có thể xuất file CSV chỉ có header bằng nút lưu khi mở phần rỗng. Không thêm verdict giả để lấp phần rỗng. File trùng hoàn toàn được khử trùng theo `(image,type)`; cùng khóa nhưng khác verdict/note thì dừng, không ghi đè file tổng. Nhóm phải đối chiếu và thống nhất trước khi gộp lại. Không tự chọn đa số hoặc ưu tiên `confirmed`.
@@ -75,7 +75,7 @@ py -X utf8 scripts/merge_review.py --rules runs/r999/rules.json --review runs/r9
 Đề ẩn cần truyền rõ đường dẫn candidates và nơi lưu kết quả:
 
 ```powershell
-py -X utf8 scripts/review_tool.py --delivery delivery --candidates submission/de_an/candidates.json --members 8 --member 4 --reviewer "leminhthang96" --out submission/de_an/review_log_m4.csv
+py -X utf8 tools/review_tool.py --delivery delivery --candidates submission/de_an/candidates.json --members 8 --member 4 --reviewer "leminhthang96" --out submission/de_an/review_log_m4.csv
 ```
 
 Mỗi người thay số phần và tên file. Gộp tương tự lô luyện tập, với các file `submission/de_an/review_log_m1.csv` đến `review_log_m8.csv`, đầu ra `submission/de_an/review_log.csv`. Tên ảnh như `img_0001` được giữ nguyên, không suy luận từ số COCO hoặc seed.
@@ -94,8 +94,8 @@ Chỉ nhận `class_swap`, `category_swap`, `bbox_drift`, `missing_box`, `instan
 
 ```powershell
 py -X utf8 -m unittest discover -s tests -p test_review_tool.py -v
-py -X utf8 scripts/review_tool.py --members 8 --check --member 4
-py -X utf8 scripts/review_tool.py --members 8 --member 4 --preview runs/r999/review_preview_m4.png
+py -X utf8 tools/review_tool.py --members 8 --check --member 4
+py -X utf8 tools/review_tool.py --members 8 --member 4 --preview runs/r999/review_preview_m4.png
 ```
 
 Hai lệnh cuối cần candidates thật đã được xuất. `--check` render toàn bộ phần được chia và in cảnh báo kỹ thuật; `--preview` xuất ba khung của ảnh đầu tiên. Chúng không ghi review hoặc kết luận đúng/sai.

@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts/review_tool.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "tools/review_tool.py"
 spec = importlib.util.spec_from_file_location("review_tool", SCRIPT)
 tool = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tool)
@@ -261,7 +261,8 @@ class ReviewToolTests(unittest.TestCase):
         tool.write_log(self.out, {(self.key, "class_swap"): self.row()})
         rules, merged = self.base / "rules.json", self.base / "errors.json"
         self.put_json(rules, {"errors": []})
-        result = subprocess.run([sys.executable, "-X", "utf8", str(SCRIPT.parent / "merge_review.py"),
+        result = subprocess.run([sys.executable, "-X", "utf8",
+                                 str(Path(__file__).resolve().parents[1] / "scripts/merge_review.py"),
                                  "--rules", str(rules), "--review", str(self.out), "--out", str(merged)],
                                 capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(result.returncode, 0, result.stderr)

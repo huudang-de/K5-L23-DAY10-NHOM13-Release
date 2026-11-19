@@ -2,8 +2,8 @@
 """Human-only Day 10 review. Python 3.10+, Pillow, Tkinter (Windows Python).
 
 Defaults: runs/r999/delivery/, 8 members; reviewer slot 4.
-Training: py -X utf8 scripts/review_tool.py --members 8 --member 4 --reviewer "TV4"
-Hidden:   py -X utf8 scripts/review_tool.py --delivery delivery \
+Training: py -X utf8 tools/review_tool.py --members 8 --member 4 --reviewer "TV4"
+Hidden:   py -X utf8 tools/review_tool.py --delivery delivery \
           --candidates submission/de_an/candidates.json --out submission/de_an/review_m4.csv
 See submission/REVIEW_TOOL.md for the candidate contract and configurable team workflow.
 """
