@@ -9,6 +9,7 @@
 | 5 | Trần Anh Tùng (TV5) | Claude Code | Viết script dựng lô v2 từ `errors.json` theo GUIDE Pha 4, kiểm bằng `check_handover.py`. Chi tiết ở Prompt 5. | Bản đầu ghi sẵn "đã mở kiểm" cho ảnh `wrong_hash` khi chưa ai mở ảnh; đã sửa. | Chạy thử trên seed phụ trong thư mục tạm: PASS H1–H15. |
 | 6 | Thành viên 4, nhóm 13, seed 999 | Codex | Cập nhật đường dẫn/import/test/hướng dẫn sau khi người dùng chuyển tool sang tools/review_tool.py; không sửa file gốc scripts/. | Sau khi di chuyển, test còn nạp đường dẫn cũ và suy ra merge_review.py từ thư mục tool. Đã đổi import sang tools/ và tách đường dẫn script gộp từ gốc repo. | 27/27 kiểm thử đạt; chạy CLI từ ngoài repo và kiểm tra tương thích scripts/merge_review.py. SHA-256 của 12 file gốc trong scripts/ không đổi. |
 | 7 | Thành viên 4, nhóm 13, seed 999 | Codex | Gộp ba file xung đột rebase, giữ công việc hai phía, tool trong tools/, seed 999 và tám người; không sửa script gốc hoặc force push. | Hai phía cùng dùng số Prompt 4 cho hai công việc khác nhau; đã giữ mục validator của Nguyễn Văn Nhất là 4 và đánh lại mục chuyển tool là 5, bảo toàn nội dung cả hai. | 27/27 kiểm thử review đạt; đối chiếu nội dung và AST xác nhận giữ mã thực thi/test của phía nhóm trưởng và test CLI mới; so hash script gốc trước/sau. |
+| 8 | Thành viên 4, nhóm 13, seed 999 | Codex | Kiểm toán tám review log, gộp CSV, tạo errors.json và chạy bộ chấm học viên một lần; chưa commit/push. | Chưa phát hiện lỗi gộp; kiểm toán đầu vào thấy chỉ bảy reviewer khác nhau, tám giả thuyết chưa có verdict riêng và bốn ảnh có cả lỗi luật lẫn review confirmed. Không tự sửa các dòng này. | Đối chiếu đủ 18 ảnh, 20 dòng không trùng cặp; 15 confirmed, 5 rejected; CSV gộp giữ nguyên toàn bộ trường nguồn; 26 lỗi sau merge. F1 làm tròn: tổng 0.8, luật 1.0, gán nhãn 0.6. |
 
 Đường dẫn tool hiện hành: **`tools/review_tool.py`**. Các đường dẫn cũ trong Prompt 1–3 bên dưới được giữ lại để bảo toàn lịch sử; dùng lệnh hiện hành trong `submission/REVIEW_TOOL.md`.
 
@@ -153,3 +154,78 @@ Hãy giải quyết conflict trong submission/prompts.md, giữ đầy đủ n�
 ```
 
 Giữ các mục chung 1–4 một lần, giữ mục bàn giao v2 của Trần Anh Tùng là Prompt 5; chuyển mục di dời tool thành Prompt 6 và lần gộp rebase trước thành Prompt 7. Nội dung riêng, người thực hiện và số liệu của cả hai phía được giữ nguyên; các số mục trong mô tả đợt xử lý trước phản ánh lịch sử lúc đó. Đã đối chiếu đầy đủ các phần và các dòng bảng với cả hai bản Git trước khi stage.
+
+## Prompt 8 — Kiểm toán, gộp tám review log và tự đo F1
+
+Ngày: 19/11/2026. Công cụ: Codex. Prompt người dùng (chuẩn hóa xuống dòng):
+
+```text
+Tôi đã nhận đủ 8 file review_log_m1.csv đến review_log_m8.csv trong runs/r999/.
+
+Hãy thực hiện:
+
+1. Kiểm tra đủ 18 ảnh đã review, không trùng hoặc bỏ sót.
+2. Kiểm tra định dạng CSV, reviewer, verdict và ghi chú.
+3. Gộp 8 file thành runs/r999/review_log.csv.
+4. Chạy scripts/merge_review.py để tạo runs/r999/errors.json.
+5. Chạy scripts/score_findings.py --run runs/r999.
+6. Báo cáo số lượng confirmed, rejected và kết quả F1.
+
+Không tự ý sửa kết luận review của thành viên, không đọc _private/ và không sửa các script gốc của bài lab.
+Chưa commit hoặc push GitHub.
+```
+
+- Đối chiếu candidates.json, tám CSV, TEAM.md và rules.json. Có đủ 18/18 ảnh, không có ảnh ngoài danh sách hoặc ảnh thuộc hai file; không trùng cặp (image,type). Có 20 dòng do hai ảnh được review theo hai loại khác nhau. Header, type/verdict, mã reviewer trong TEAM và phần ghi chú >=20 ký tự sau tiền tố reviewer đều hợp lệ về hình thức; không có note trùng nguyên văn.
+- Chỉ có bảy reviewer khác nhau: m6 và m7 cùng ghi TT1172001; chưa có trananhtung1. Có tám giả thuyết trong candidates chưa có verdict riêng, trong đó một số ảnh đã được review theo loại khác. Bốn ảnh có cả lỗi luật và lỗi gán nhãn confirmed. Đã ghi chi tiết vào runs/r999/review_audit.md và review_audit.json; không sửa người xem, loại lỗi, verdict hoặc note thay thành viên.
+- Dùng tools/review_tool.py --merge để tạo review_log.csv; đối chiếu từng trường của cả 20 dòng với tám nguồn, kết quả giống hoàn toàn. Chạy script lab merge_review.py với rules.json, được 26 lỗi = 11 lỗi luật + 15 confirmed. Có 5 rejected; các dòng rejected không được đưa vào errors.json.
+- Chạy đúng lệnh scripts/score_findings.py --run runs/r999 ở chế độ học viên một lần cho toàn bộ danh sách. Chỉ lấy báo cáo F1 làm tròn từ report.md: tổng ≈0.8, luật ≈1.0, gán nhãn ≈0.6. Không mở đáp án, không dùng --truth-dir, không dò điểm theo từng ảnh. Bộ chấm chuẩn tự xử lý đáp án nội bộ theo lệnh đã được yêu cầu.
+- Không sửa tám log nguồn, candidates.json, rules.json hoặc script lab gốc. Chưa commit/push. Các điểm kiểm toán cần người review thật xác minh trước khi nhóm coi đây là kết quả chốt.
+
+### Gộp lại sau khi nhận bản m6 cập nhật
+
+Prompt người dùng:
+
+```text
+Tôi đã cập nhật review_log_m6.csv đúng người review.
+
+Hãy gộp lại 8 file CSV, kiểm tra đủ 8 reviewer, tạo lại review_log.csv và errors.json, sau đó chạy chấm điểm F1.
+
+Báo cáo các trường hợp còn thiếu hoặc bất thường. Không tự sửa kết luận review. Chưa commit hoặc push.
+```
+
+- Kiểm tra lại toàn bộ tám nguồn, xác nhận đủ tám reviewer khác nhau và khớp TEAM.md: m6 là trananhtung1, m7 là TT1172001. Đủ 18/18 ảnh, 20 dòng, không trùng cặp (image,type), không thiếu/thừa ảnh; ghi chú và định dạng hợp lệ về hình thức.
+- Dùng nguyên bản m6 mới, gồm missing_box của 000000005477 là rejected và category_swap của 000000014831 là confirmed. Đây là các kết luận do thành viên cập nhật trong nguồn, AI không tự thay đổi. Tổng vẫn là 15 confirmed, 5 rejected.
+- Gộp lại review_log.csv, đối chiếu toàn bộ trường của 20 dòng với nguồn; tạo lại errors.json gồm 26 lỗi (11 luật + 15 confirmed). Chạy bộ chấm học viên một lần sau cập nhật; F1 làm tròn từ report.md vẫn là tổng ≈0.8, luật ≈1.0, gán nhãn ≈0.6. Không dùng kết quả điểm để sửa verdict.
+- Cập nhật review_audit.md và review_audit.json: còn tám cặp giả thuyết chưa có verdict riêng; ba ảnh có cả lỗi luật và confirmed review là 000000007818, 000000008211, 000000009772. Các điểm này cần người xem ảnh đối chiếu; không tự điền verdict còn thiếu hoặc bỏ lỗi. Vấn đề thiếu reviewer đã được giải quyết.
+- Không sửa nguồn review, candidates, rules hoặc script lab gốc; chưa commit/push. Sao lưu các file tổng hợp cũ vào thư mục tạm trước khi ghi bản mới để giữ lịch sử.
+
+### Gộp lại sau đợt kiểm tra bổ sung của các thành viên
+
+Prompt người dùng:
+
+```text
+Các thành viên đã review lại và tôi đã cập nhật các file CSV trong runs/r999/.
+
+Hãy gộp lại 8 file CSV, kiểm tra các trường hợp còn thiếu hoặc trùng lặp, tạo lại review_log.csv và errors.json, sau đó chạy score_findings.py để tính F1.
+
+So sánh kết quả với lần trước. Không tự sửa kết luận review, không sửa scripts gốc và chưa commit hoặc push.
+```
+
+- Sao lưu các file tổng hợp trước khi ghi bản mới. Đủ tám reviewer và 18/18 ảnh, 20 dòng, không trùng cặp (image,type), không có ảnh bị chia cho hai file; ghi chú đủ độ dài.
+- Phát hiện m1 dòng 3 (000000008211) có dấu phẩy trong note không được quote, CSV thành năm cột. Không sửa nguồn: chỉ ghép phần note bằng đúng dấu phẩy gốc và ghi bản sao tạm bằng csv.writer để gộp hợp lệ. Reviewer, type, verdict và toàn bộ nội dung ghi chú được giữ nguyên. Đã nêu rõ lỗi định dạng trong review_audit.md/json.
+- Bản nguồn mới có missing_box của 000000008211 chuyển confirmed sang rejected. Ở m6, category_swap confirmed của 000000014831 bị thay bằng class_swap rejected; AI dùng đúng nguồn mới, không tự khôi phục dòng cũ hoặc suy ra category_swap từ ghi chú.
+- CSV mới có 13 confirmed, 7 rejected (trước 15/5); errors.json có 24 lỗi = 11 luật + 13 confirmed (trước 26). Đối chiếu toàn bộ dòng gộp với các bản chuẩn hóa và tập errors với luật cộng confirmed đều khớp.
+- Chạy bộ chấm học viên đúng một lần cho danh sách mới: F1 làm tròn tổng ≈0.8, luật ≈1.0, gán nhãn ≈0.6; các giá trị làm tròn chưa đổi so với lần trước. Không đọc đáp án hoặc dùng --truth-dir, không thay verdict theo điểm.
+- Vẫn còn tám giả thuyết chưa có verdict riêng: class_swap của 000000014831 nay đã có rejected, nhưng category_swap của ảnh đó lại thiếu dòng riêng. Ảnh có cả lỗi luật và review confirmed giảm từ ba xuống hai: 000000007818, 000000009772. Chi tiết và so sánh trước/sau được lưu trong runs/r999/review_audit.md và review_audit.json.
+- Không sửa tám CSV nguồn, rules, candidates hoặc script gốc; chưa commit/push. Cần người review xác minh các mục còn thiếu và việc thay thế dòng ở m6.
+
+### Chạy lại cùng yêu cầu sau bản CSV bổ sung
+
+Người dùng lặp lại cùng prompt gộp tám CSV, kiểm tra thiếu/trùng, tạo errors.json, chấm F1 và so sánh với lần trước ở mục ngay trên. Giữ nguyên yêu cầu không tự sửa kết luận, không sửa script gốc và chưa commit/push.
+
+- Kiểm tra nguồn mới: đủ tám reviewer và 18/18 ảnh, 20 dòng có dữ liệu; không thiếu/thừa ảnh, không trùng cặp (image,type) hoặc ảnh giữa các file.
+- Nguồn có ba dòng note chứa dấu phẩy chưa được quote (m1 dòng 3; m3 dòng 2 và 3) và hai bản ghi hoàn toàn trống ở m7 dòng 4–5. Chỉ chuẩn hóa quoting và bỏ bản ghi không có dữ liệu trên bản sao tạm; toàn bộ nội dung note, reviewer, type và verdict được giữ nguyên. Không sửa CSV nguồn.
+- Tạo lại review_log.csv và errors.json, đối chiếu tất cả các trường dòng gộp với bản chuẩn hóa và tập lỗi với luật cộng confirmed. Kết quả mới: 11 confirmed, 9 rejected, 22 lỗi = 11 luật + 11 confirmed. Lần trước tương ứng là 13 confirmed, 7 rejected và 24 lỗi.
+- Chạy bộ chấm học viên một lần sau thay đổi nguồn: F1 làm tròn tổng ≈0.9 (trước ≈0.8), luật ≈1.0 (trước ≈1.0), gán nhãn ≈0.7 (trước ≈0.6). Không dùng --truth-dir hoặc mở đáp án, không tự chỉnh verdict theo điểm.
+- Các giả thuyết thiếu verdict riêng giảm từ tám xuống bảy, ảnh có cả lỗi luật và review confirmed giảm từ hai xuống không. missing_box của 000000001818 đã có confirmed. Ở 000000017178, nguồn đổi category_swap rejected thành class_swap rejected nên category_swap nay thiếu dòng; note vẫn nói YOLO ghi cow sai nên người review cần kiểm tra lại sự thống nhất.
+- Chi tiết các mục còn thiếu, ghi chú chưa đủ quan sát và so sánh từng thay đổi được cập nhật trong runs/r999/review_audit.md/json. Sao lưu kết quả cũ trước khi ghi mới; không sửa scripts gốc và chưa commit/push.

@@ -1,0 +1,21 @@
+image,type,verdict,note
+000000000632,bbox_drift,confirmed,[reviewer=huudang-de] Cái giường ở góc phải khung hình đang bị bouding box trượt khỏi vật thể.
+000000000872,missing_box,confirmed,"[reviewer=Edelzz] Hai cầu thủ mặc áo trắng và áo xanh có hai mask person riêng trong Panoptic. YOLO chỉ có một box person, thiếu box riêng cho cầu thủ áo trắng ở tiền cảnh."
+000000001818,missing_box,confirmed,"[reviewer=hungvu208] Co 2 con ngua nhung detection chi nhan 1 con, bo sot 1 con ngua"
+000000002685,instance_merge,confirmed,[reviewer=Tuan-Bach] Hai vat the cung lop duoc detection bat 2 box rieng nhung panoptic bi gop thanh 1 segment
+000000004134,bbox_drift,confirmed,"[reviewer=leminhthang96] Bounding box người mặc vest bị lệch sang trái, không ôm sát vật thể."
+000000005477,missing_box,rejected,"[reviewer=trananhtung1] thấy vài máy bay trên sân bay, có 2 bounding box airplane trên ảnh yolo và cơ bản là đúng, một máy bay chính giữa rõ ràng, có vài máy bay đậu đằng sau nhưng khuất nhiềukhông thể tách riêng ra được. grass, sky, mountain hay road thì đều là khung cảnh nên không cần box. thấy cả airplane phía sau bị đè trên seg nhưng quá nhỏ để phân biệt"
+000000007784,bbox_drift,confirmed,"[reviewer=TT1172001] thay canh dieu. nguon panoptic hop ly hon , nguon yolo box detection bi lech"
+000000007818,bbox_drift,rejected,[reviewer=Dang-Van-Ly] cai thia box chi khoanh vung dau cua thia phan than bi bo xot
+000000008211,missing_box,rejected,"[reviewer=huudang-de] Anh da co loi luat thing_overlap trong rules.json, khong confirm them loi gan nhan"
+000000008629,category_swap,rejected,[reviewer=Edelzz] Viền Panoptic quanh miếng bánh ở ô giữa bên phải có nhãn pizza và khớp với vật trong ảnh gốc.
+000000008629,class_swap,rejected,[reviewer=Edelzz] Box YOLO D3 bao miếng pizza ở ô giữa bên phải nhưng ghi ID 80 ngoài phạm vi 0–79. Validator ghi lỗi invalid_class cho box này.
+000000009772,missing_box,rejected,"[reviewer=hungvu208] Anh da co loi luat invalid_class trong rules.json, khong confirm them loi gan nhan"
+000000010707,category_swap,confirmed,"[reviewer=Tuan-Bach] Vat the la ghe sofa couch, detection gan dung couch nhung panoptic bi doi nham thanh bench"
+000000010707,class_swap,rejected,"[reviewer=Tuan-Bach] Detection gan nhan dung couch theo vat the trong anh, nguon sai la panoptic nen khong phai class_swap"
+000000012748,missing_box,confirmed,"[reviewer=leminhthang96] YOLO thiếu bounding box riêng của người đàn ông, Panoptic phân biệt đủ hai người."
+000000014831,class_swap,rejected,"[reviewer=trananhtung1] con vật trên giường là chó, detection ghi dog là đúng nên không phải class_swap; lỗi nằm ở panoptic ghi cat"
+000000017178,class_swap,rejected,"[reviewer=TT1172001] thay mot chiec xe o to va 4 con ngua. Nguon PANOPTIC hop ly hon, box D4 o nguon YOLO gan sai thanh nhan ""cow"""
+000000023359,class_swap,confirmed,[reviewer=Dang-Van-Ly] hinh van truot o ben box bi sai ten thanh vase thayi snowboard
+000000023937,missing_box,confirmed,[reviewer=huudang-de] Bo sot 1 box cow so voi segment panoptic (ngoai ra co 1 con bi cay co che khuat kho nhin ro la bo hay cuu)
+000000025560,missing_box,confirmed,"[reviewer=Edelzz] Chiếc TV phía sau con mèo có mask tv trong Panoptic. YOLO chỉ vẽ box person quanh người trên màn hình, thiếu box cho chiếc TV."

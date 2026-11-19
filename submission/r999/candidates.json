@@ -1,0 +1,118 @@
+{
+  "candidates": [
+    {
+      "target": "000000000632",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "000000000872",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "000000001818",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "000000002685",
+      "types": [
+        "instance_merge"
+      ]
+    },
+    {
+      "target": "000000004134",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "000000005477",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "000000007784",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "000000007818",
+      "types": [
+        "instance_merge"
+      ]
+    },
+    {
+      "target": "000000008211",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "000000008629",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000009772",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000010707",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000012748",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "000000014831",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000017178",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000023359",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "000000023937",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "000000025560",
+      "types": [
+        "missing_box"
+      ]
+    }
+  ]
+}
