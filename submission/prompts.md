@@ -156,7 +156,6 @@ Hãy giải quyết conflict trong submission/prompts.md, giữ đầy đủ n�
 
 Giữ các mục chung 1–4 một lần, giữ mục bàn giao v2 của Trần Anh Tùng là Prompt 5; chuyển mục di dời tool thành Prompt 6 và lần gộp rebase trước thành Prompt 7. Nội dung riêng, người thực hiện và số liệu của cả hai phía được giữ nguyên; các số mục trong mô tả đợt xử lý trước phản ánh lịch sử lúc đó. Đã đối chiếu đầy đủ các phần và các dòng bảng với cả hai bản Git trước khi stage.
 
-<<<<<<< HEAD
 ## Prompt 8 — Kiểm toán, gộp tám review log và tự đo F1
 
 Ngày: 19/11/2026. Công cụ: Codex. Prompt người dùng (chuẩn hóa xuống dòng):

@@ -21,7 +21,7 @@ Validator kiểm năm lỗi `missing_image`, `wrong_hash`, `invalid_class`, `bbo
 | Seed bổ sung 11 | 250 | 7 — 1 thiếu ảnh, 2 sai hash, 2 box tràn mép, 2 box trùng |
 | Lô sạch | 50 | 0 |
 
-Các số trên là đầu ra của năm luật. F1 chung sẽ được ghi sau khi nhóm tích hợp và chấm validator đầy đủ. Chi tiết cách dùng AI và kiểm lại nằm trong mục Prompt 4 của [prompts.md](prompts.md).
+Các số trên là đầu ra của năm luật; F1 tổng hợp sau khi tích hợp đầy đủ đã ghi ở đầu Mục 1 (`1.0 / 0.7 / 0.9`). Chi tiết cách dùng AI và kiểm lại nằm trong mục Prompt 4 của [prompts.md](prompts.md).
 
 ### Đối chiếu Detection ↔ Panoptic — Bạch Đăng Ngọc Tuấn (TV3)
 
