@@ -1,0 +1,104 @@
+{
+  "candidates": [
+    {
+      "target": "img_0023",
+      "types": [
+        "instance_merge"
+      ]
+    },
+    {
+      "target": "img_0028",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "img_0036",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "img_0061",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "img_0063",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "img_0079",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "img_0117",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "img_0119",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "img_0131",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "img_0165",
+      "types": [
+        "instance_merge"
+      ]
+    },
+    {
+      "target": "img_0171",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "img_0178",
+      "types": [
+        "bbox_drift"
+      ]
+    },
+    {
+      "target": "img_0199",
+      "types": [
+        "missing_box"
+      ]
+    },
+    {
+      "target": "img_0226",
+      "types": [
+        "instance_merge"
+      ]
+    },
+    {
+      "target": "img_0238",
+      "types": [
+        "category_swap",
+        "class_swap"
+      ]
+    },
+    {
+      "target": "img_0245",
+      "types": [
+        "missing_box"
+      ]
+    }
+  ]
+}
